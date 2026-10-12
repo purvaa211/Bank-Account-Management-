@@ -48,7 +48,8 @@ void printMainMenu(size_t activeAccounts)
     std::cout << "| " << UI::Color::BOLD_WHITE << " [8] " << UI::Color::WHITE << "Calculate Interest        " << UI::Color::GRAY << "(Polymorphic interest simulation)  " << UI::Color::CYAN << "|\n";
     std::cout << "| " << UI::Color::BOLD_WHITE << " [9] " << UI::Color::WHITE << "Save Accounts to File     " << UI::Color::GRAY << "(Export database to accounts.txt)  " << UI::Color::CYAN << "|\n";
     std::cout << "+--------------------------------------------------------------------+\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [10] " << UI::Color::RED << "Exit Program" << UI::Color::CYAN << "                                                 |\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [10] " << UI::Color::CYAN << "Open Web Platform in Browser" << UI::Color::GRAY << " (Interactive GUI & OOP Inspector)" << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [11] " << UI::Color::RED << "Exit Program" << UI::Color::CYAN << "                                                 |\n";
     std::cout << "+====================================================================+\n" << UI::Color::RESET;
 }
 
@@ -56,6 +57,16 @@ int main()
 {
     // Initialize Windows terminal colors and UTF-8 support
     UI::initTerminal();
+
+    // Automatically launch the interactive web platform in the default browser
+    std::cout << UI::Color::BOLD_CYAN << "[LAUNCH] Opening Interactive Web Platform in default browser...\n" << UI::Color::RESET;
+#ifdef _WIN32
+    system("start docs\\index.html");
+#elif __APPLE__
+    system("open docs/index.html");
+#else
+    system("xdg-open docs/index.html > /dev/null 2>&1 &");
+#endif
 
     Bank bank;
     int choice = 0;
@@ -65,7 +76,7 @@ int main()
         UI::clearScreen();
         printMainMenu(bank.getAccountCount());
 
-        choice = UI::getInt("\nEnter your choice (1-10): ", 1, 10);
+        choice = UI::getInt("\nEnter your choice (1-11): ", 1, 11);
 
         switch (choice)
         {
@@ -260,7 +271,23 @@ int main()
                 break;
             }
 
-            case 10: // Exit
+            case 10: // Launch Web Platform in Browser
+            {
+                UI::printSectionHeader("LAUNCH WEB PLATFORM");
+                UI::printInfo("Opening interactive web platform in your default browser...");
+#ifdef _WIN32
+                system("start docs\\index.html");
+#elif __APPLE__
+                system("open docs/index.html");
+#else
+                system("xdg-open docs/index.html > /dev/null 2>&1 &");
+#endif
+                UI::printSuccess("Interactive web platform opened successfully!");
+                UI::pauseScreen();
+                break;
+            }
+
+            case 11: // Exit
             {
                 UI::clearScreen();
                 std::cout << UI::Color::BOLD_CYAN;
@@ -274,13 +301,13 @@ int main()
 
             default:
             {
-                UI::printError("Invalid selection. Please choose an option between 1 and 10.");
+                UI::printError("Invalid selection. Please choose an option between 1 and 11.");
                 UI::pauseScreen();
                 break;
             }
         }
 
-    } while (choice != 10);
+    } while (choice != 11);
 
     return 0;
 }

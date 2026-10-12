@@ -1,6 +1,6 @@
 @echo off
 REM ==============================================================================
-REM Bank Account Management System - Build & Run Script
+REM Bank Account Management System - Build & Launch Script
 REM ==============================================================================
 
 echo [BUILD] Compiling Bank Account Management System with g++...
@@ -8,7 +8,9 @@ g++ -std=c++11 -Wall -Wextra Account.cpp Bank.cpp CurrentAccount.cpp SavingsAcco
 
 if %ERRORLEVEL% EQU 0 (
     echo [BUILD SUCCESS] Compilation finished with 0 errors!
-    echo [RUN] Launching Bank Account Management System...
+    echo [LAUNCH] Opening Bank Account Management System Web Platform in default browser...
+    start "" "%~dp0docs\index.html"
+    echo [RUN] Launching Bank Account Management System Console...
     echo.
     bank_management.exe
 ) else (
