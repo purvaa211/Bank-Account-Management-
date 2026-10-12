@@ -612,6 +612,91 @@ body {
   gap: 0.4rem;
 }
 
+/* Secure Search & Passbook Card */
+.search-form-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.search-form-row .form-control {
+  flex: 1;
+}
+
+.search-result-area {
+  min-height: 120px;
+}
+
+.privacy-notice {
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  background-color: var(--bg-subtle);
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.account-detail-card {
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-left: 4px solid var(--primary-blue);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(76, 60, 40, 0.04);
+}
+
+.account-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-item-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.detail-item-val {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.detail-balance {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--color-success);
+}
+
+.detail-actions {
+  display: flex;
+  gap: 0.6rem;
+  border-top: 1px dashed var(--border-light);
+  padding-top: 1rem;
+  flex-wrap: wrap;
+}
+
 /* Footer */
 .footer {
   background-color: var(--bg-card);

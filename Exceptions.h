@@ -51,8 +51,8 @@ public:
         : BankingException("Insufficient balance! Withdrawal amount exceeds available balance.") {}
 
     explicit InsufficientBalanceException(double currentBalance, double requestedAmount)
-        : BankingException("Insufficient balance! Available balance is $" + 
-                           std::to_string(currentBalance) + ", but requested withdrawal is $" + 
+        : BankingException("Insufficient balance! Available balance is Rs. " + 
+                           std::to_string(currentBalance) + ", but requested withdrawal is Rs. " + 
                            std::to_string(requestedAmount) + ".") {}
 };
 

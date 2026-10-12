@@ -84,7 +84,7 @@ int main()
             {
                 UI::printSectionHeader("CREATE SAVINGS ACCOUNT (4% INTEREST)");
                 std::string name = UI::getString("Enter Account Holder's Full Name : ");
-                double balance = UI::getDouble("Enter Initial Opening Balance ($)   : ", 0.0);
+                double balance = UI::getDouble("Enter Initial Opening Balance (Rs.) : ", 0.0);
 
                 try
                 {
@@ -107,7 +107,7 @@ int main()
             {
                 UI::printSectionHeader("CREATE CURRENT ACCOUNT (0% INTEREST)");
                 std::string name = UI::getString("Enter Account Holder's Full Name : ");
-                double balance = UI::getDouble("Enter Initial Opening Balance ($)   : ", 0.0);
+                double balance = UI::getDouble("Enter Initial Opening Balance (Rs.) : ", 0.0);
 
                 try
                 {
@@ -141,7 +141,7 @@ int main()
                               << "Current Balance: " << UI::Color::BOLD_GREEN 
                               << UI::formatCurrency(prevBal) << UI::Color::RESET << "\n";
 
-                    double amount = UI::getDouble("Enter Deposit Amount ($)  : ", 0.01);
+                    double amount = UI::getDouble("Enter Deposit Amount (Rs.)    : ", 0.01);
 
                     account->deposit(amount);
                     double newBal = account->getBalance();
@@ -173,7 +173,7 @@ int main()
                               << "Available Balance: " << UI::Color::BOLD_GREEN 
                               << UI::formatCurrency(prevBal) << UI::Color::RESET << "\n";
 
-                    double amount = UI::getDouble("Enter Withdrawal Amount ($) : ", 0.01);
+                    double amount = UI::getDouble("Enter Withdrawal Amount (Rs.) : ", 0.01);
 
                     account->withdraw(amount);
                     double newBal = account->getBalance();

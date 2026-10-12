@@ -6,6 +6,11 @@
  * ==============================================================================
  */
 
+// Format currency to Indian Rupees (₹)
+function formatRupees(amount) {
+  return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 // Custom Exception Classes (mirroring C++ domain exceptions)
 class BankingException extends Error {
   constructor(message) {
@@ -23,7 +28,7 @@ class InvalidAmountException extends BankingException {
 
 class InsufficientBalanceException extends BankingException {
   constructor(currentBalance, requestedAmount) {
-    super(`Insufficient balance! Available balance is $${currentBalance.toFixed(2)}, but requested withdrawal is $${requestedAmount.toFixed(2)}.`);
+    super(`Insufficient balance! Available balance is ${formatRupees(currentBalance)}, but requested withdrawal is ${formatRupees(requestedAmount)}.`);
     this.name = 'InsufficientBalanceException';
   }
 }
@@ -160,6 +165,17 @@ class Bank {
     return acc;
   }
 
+  findAccountByQuery(query) {
+    const trimmed = String(query).trim().toLowerCase();
+    // Search by Account Number
+    const byNum = this.accounts.find(a => String(a.getAccountNumber()) === trimmed);
+    if (byNum) return byNum;
+    // Search by Account Holder Name
+    const byName = this.accounts.find(a => a.getName().toLowerCase() === trimmed || a.getName().toLowerCase().includes(trimmed));
+    if (byName) return byName;
+    throw new AccountNotFoundException(query);
+  }
+
   getTotalBankBalance() {
     return this.accounts.reduce((acc, curr) => acc + curr.getBalance(), 0);
   }
@@ -181,7 +197,7 @@ class Bank {
 const bank = new Bank();
 let currentAction = 'create-savings';
 
-// Seed Sample Accounts
+// Seed Initial Sample Accounts
 function seedInitialData() {
   Account.nextAccountNumber = 1001;
   bank.accounts = [];
@@ -198,35 +214,26 @@ function seedInitialData() {
 // Update Top Metrics Banner
 function updateMetrics() {
   document.getElementById('statAccountCount').textContent = bank.getAccountCount();
-  document.getElementById('statTotalBalance').textContent = `$${bank.getTotalBankBalance().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  document.getElementById('statTotalBalance').textContent = formatRupees(bank.getTotalBankBalance());
   document.getElementById('statSavingsCount').textContent = bank.getSavingsCount();
   document.getElementById('statCurrentCount').textContent = bank.getCurrentCount();
 }
 
-// Render Active Operation Form
+// Render Active Operation Form (Privacy Protected - No public balance dropdowns)
 function renderActionForm(action) {
   const container = document.getElementById('actionFormContainer');
   let html = '';
-
-  const getAccountOptions = () => {
-    if (bank.accounts.length === 0) {
-      return '<option value="">No accounts exist. Please create one first.</option>';
-    }
-    return bank.accounts
-      .map(a => `<option value="${a.getAccountNumber()}">#${a.getAccountNumber()} - ${escapeHtml(a.getName())} (${a.getAccountType()} | $${a.getBalance().toFixed(2)})</option>`)
-      .join('');
-  };
 
   if (action === 'create-savings') {
     html = `
       <form id="formAction">
         <div class="form-group">
           <label>Account Holder Full Name</label>
-          <input type="text" class="form-control" id="inpName" placeholder="Enter account holder name (e.g. Purva Deshmukh)" required>
+          <input type="text" class="form-control" id="inpName" placeholder="Enter full name (e.g. Purva Deshmukh)" required>
         </div>
         <div class="form-group">
-          <label>Initial Opening Balance ($)</label>
-          <input type="number" step="0.01" min="0" class="form-control" id="inpBalance" placeholder="Enter opening balance (e.g. 5000)" required>
+          <label>Initial Opening Balance (₹)</label>
+          <input type="number" step="0.01" min="0" class="form-control" id="inpBalance" placeholder="Enter opening balance in Rupees (e.g. 5000)" required>
           <span class="form-hint">Savings Account earns 4.0% annual interest</span>
         </div>
         <div class="form-actions">
@@ -238,12 +245,12 @@ function renderActionForm(action) {
     html = `
       <form id="formAction">
         <div class="form-group">
-          <label>Account Holder / Entity Name</label>
-          <input type="text" class="form-control" id="inpName" placeholder="Enter commercial / entity name (e.g. Global Tech Ltd)" required>
+          <label>Account Holder / Commercial Name</label>
+          <input type="text" class="form-control" id="inpName" placeholder="Enter commercial / firm name (e.g. Tech Innovations Ltd)" required>
         </div>
         <div class="form-group">
-          <label>Initial Opening Balance ($)</label>
-          <input type="number" step="0.01" min="0" class="form-control" id="inpBalance" placeholder="Enter opening balance (e.g. 15000)" required>
+          <label>Initial Opening Balance (₹)</label>
+          <input type="number" step="0.01" min="0" class="form-control" id="inpBalance" placeholder="Enter opening balance in Rupees (e.g. 15000)" required>
           <span class="form-hint">Current Account is designed for commercial transactions with 0% interest</span>
         </div>
         <div class="form-actions">
@@ -255,14 +262,12 @@ function renderActionForm(action) {
     html = `
       <form id="formAction">
         <div class="form-group">
-          <label>Select Target Account</label>
-          <select class="form-control" id="selAccount" required>
-            ${getAccountOptions()}
-          </select>
+          <label>Enter Account Number</label>
+          <input type="number" class="form-control" id="inpAccountNum" placeholder="Enter Account Number (e.g. 1001)" required>
         </div>
         <div class="form-group">
-          <label>Deposit Amount ($)</label>
-          <input type="number" step="0.01" min="0.01" class="form-control" id="inpAmount" placeholder="Enter deposit amount (e.g. 2500)" required>
+          <label>Deposit Amount (₹)</label>
+          <input type="number" step="0.01" min="0.01" class="form-control" id="inpAmount" placeholder="Enter deposit amount in Rupees (e.g. 2500)" required>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Deposit Funds</button>
@@ -273,14 +278,12 @@ function renderActionForm(action) {
     html = `
       <form id="formAction">
         <div class="form-group">
-          <label>Select Source Account</label>
-          <select class="form-control" id="selAccount" required>
-            ${getAccountOptions()}
-          </select>
+          <label>Enter Account Number</label>
+          <input type="number" class="form-control" id="inpAccountNum" placeholder="Enter Account Number (e.g. 1001)" required>
         </div>
         <div class="form-group">
-          <label>Withdrawal Amount ($)</label>
-          <input type="number" step="0.01" min="0.01" class="form-control" id="inpAmount" placeholder="Enter withdrawal amount (e.g. 1000)" required>
+          <label>Withdrawal Amount (₹)</label>
+          <input type="number" step="0.01" min="0.01" class="form-control" id="inpAmount" placeholder="Enter withdrawal amount in Rupees (e.g. 1000)" required>
           <span class="form-hint">Withdrawal amount must not exceed the available balance</span>
         </div>
         <div class="form-actions">
@@ -292,10 +295,9 @@ function renderActionForm(action) {
     html = `
       <form id="formAction">
         <div class="form-group">
-          <label>Select Account to Check Balance</label>
-          <select class="form-control" id="selAccount" required>
-            ${getAccountOptions()}
-          </select>
+          <label>Enter Account Number or Account Holder Name</label>
+          <input type="text" class="form-control" id="inpSearchQuery" placeholder="Enter Account Number (e.g. 1001) or Name (e.g. Purva Deshmukh)" required>
+          <span class="form-hint">Secure lookup: Enter the specific account number or name to view balance</span>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Check Balance</button>
@@ -306,11 +308,9 @@ function renderActionForm(action) {
     html = `
       <form id="formAction">
         <div class="form-group">
-          <label>Select Account for Annual Interest Calculation</label>
-          <select class="form-control" id="selAccount" required>
-            ${getAccountOptions()}
-          </select>
-          <span class="form-hint">Calculates 4% interest for Savings Accounts and 0% for Current Accounts</span>
+          <label>Enter Account Number</label>
+          <input type="number" class="form-control" id="inpAccountNum" placeholder="Enter Account Number (e.g. 1001)" required>
+          <span class="form-hint">Calculates 4% annual interest for Savings Accounts and 0% for Current Accounts</span>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Calculate Projected Interest</button>
@@ -325,51 +325,6 @@ function renderActionForm(action) {
   if (form) {
     form.addEventListener('submit', handleFormSubmit);
   }
-}
-
-// Render Accounts Table
-function renderTable() {
-  const tbody = document.getElementById('accountsTableBody');
-  if (bank.accounts.length === 0) {
-    tbody.innerHTML = `
-      <tr class="empty-row">
-        <td colspan="6">No accounts registered yet. Use the operations form above or click "Load Sample Accounts".</td>
-      </tr>
-    `;
-    return;
-  }
-
-  tbody.innerHTML = bank.accounts.map(acc => {
-    const isSavings = acc instanceof SavingsAccount;
-    const typeClass = isSavings ? 'type-savings' : 'type-current';
-    const rateText = isSavings ? '4.0% p.a.' : '0.0% (N/A)';
-
-    return `
-      <tr>
-        <td class="account-num-text">#${acc.getAccountNumber()}</td>
-        <td><strong>${escapeHtml(acc.getName())}</strong></td>
-        <td><span class="type-pill ${typeClass}">${acc.getAccountType()}</span></td>
-        <td>${rateText}</td>
-        <td class="balance-text">$${acc.getBalance().toFixed(2)}</td>
-        <td>
-          <div class="action-btn-group">
-            <button class="btn btn-secondary btn-sm" onclick="quickSelectAction('deposit', ${acc.getAccountNumber()})">Deposit</button>
-            <button class="btn btn-secondary btn-sm" onclick="quickSelectAction('withdraw', ${acc.getAccountNumber()})">Withdraw</button>
-            <button class="btn btn-secondary btn-sm" onclick="quickSelectAction('calculate-interest', ${acc.getAccountNumber()})">Interest</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// Quick action from table rows
-function quickSelectAction(action, accNum) {
-  switchAction(action);
-  setTimeout(() => {
-    const sel = document.getElementById('selAccount');
-    if (sel) sel.value = String(accNum);
-  }, 10);
 }
 
 // Switch between action tabs
@@ -433,7 +388,7 @@ function handleFormSubmit(e) {
       renderActionForm(currentAction);
 
     } else if (currentAction === 'deposit') {
-      const accNum = document.getElementById('selAccount').value;
+      const accNum = document.getElementById('inpAccountNum').value.trim();
       const amount = parseFloat(document.getElementById('inpAmount').value);
       const acc = bank.findAccount(accNum);
       const prevBal = acc.getBalance();
@@ -454,7 +409,7 @@ function handleFormSubmit(e) {
       });
 
     } else if (currentAction === 'withdraw') {
-      const accNum = document.getElementById('selAccount').value;
+      const accNum = document.getElementById('inpAccountNum').value.trim();
       const amount = parseFloat(document.getElementById('inpAmount').value);
       const acc = bank.findAccount(accNum);
       const prevBal = acc.getBalance();
@@ -475,13 +430,13 @@ function handleFormSubmit(e) {
       });
 
     } else if (currentAction === 'balance-inquiry') {
-      const accNum = document.getElementById('selAccount').value;
-      const acc = bank.findAccount(accNum);
+      const query = document.getElementById('inpSearchQuery').value.trim();
+      const acc = bank.findAccountByQuery(query);
 
       showBalanceReceipt(acc);
 
     } else if (currentAction === 'calculate-interest') {
-      const accNum = document.getElementById('selAccount').value;
+      const accNum = document.getElementById('inpAccountNum').value.trim();
       const acc = bank.findAccount(accNum);
       const result = acc.calculateInterest();
 
@@ -489,7 +444,6 @@ function handleFormSubmit(e) {
     }
 
     updateMetrics();
-    renderTable();
 
   } catch (err) {
     showErrorReceipt(err.name || 'Transaction Error', err.message);
@@ -516,13 +470,13 @@ function showReceipt(data) {
         <span class="receipt-item-val">${data.txType}</span>
 
         <span class="receipt-item-label">Previous Balance</span>
-        <span class="receipt-item-val">$${data.prevBal.toFixed(2)}</span>
+        <span class="receipt-item-val">${formatRupees(data.prevBal)}</span>
 
         <span class="receipt-item-label">Transaction Amount</span>
-        <span class="receipt-item-val" style="color:${data.txType === 'DEPOSIT' ? 'var(--color-success)' : 'var(--color-danger)'}">$${data.amount.toFixed(2)}</span>
+        <span class="receipt-item-val" style="color:${data.txType === 'DEPOSIT' ? 'var(--color-success)' : 'var(--color-danger)'}">${formatRupees(data.amount)}</span>
 
         <span class="receipt-item-label">Updated Balance</span>
-        <span class="receipt-item-val" style="color:var(--color-success);">$${data.newBal.toFixed(2)}</span>
+        <span class="receipt-item-val" style="color:var(--color-success); font-size:1.05rem;">${formatRupees(data.newBal)}</span>
       </div>
     </div>
   `;
@@ -547,7 +501,7 @@ function showBalanceReceipt(acc) {
         <span class="receipt-item-val">${(acc.getInterestRate() * 100).toFixed(1)}% p.a.</span>
 
         <span class="receipt-item-label">Available Balance</span>
-        <span class="receipt-item-val" style="color:var(--color-success); font-size:1.05rem;">$${acc.getBalance().toFixed(2)}</span>
+        <span class="receipt-item-val" style="color:var(--color-success); font-size:1.15rem;">${formatRupees(acc.getBalance())}</span>
       </div>
     </div>
   `;
@@ -572,13 +526,13 @@ function showInterestCard(acc, res) {
         <span class="receipt-item-val">${res.ratePercent.toFixed(1)}% per annum</span>
 
         <span class="receipt-item-label">Current Principal</span>
-        <span class="receipt-item-val">$${res.principal.toFixed(2)}</span>
+        <span class="receipt-item-val">${formatRupees(res.principal)}</span>
 
         <span class="receipt-item-label">Annual Interest Earned</span>
-        <span class="receipt-item-val" style="color:var(--color-purple);">$${res.interest.toFixed(2)}</span>
+        <span class="receipt-item-val" style="color:var(--color-purple); font-weight:700;">${formatRupees(res.interest)}</span>
 
         <span class="receipt-item-label">Projected Balance (1 Yr)</span>
-        <span class="receipt-item-val" style="color:var(--color-success); font-size:1.05rem;">$${res.projectedBalance.toFixed(2)}</span>
+        <span class="receipt-item-val" style="color:var(--color-success); font-size:1.15rem;">${formatRupees(res.projectedBalance)}</span>
       </div>
       <div style="margin-top:0.85rem; font-size:0.78rem; color:var(--text-secondary); border-top:1px dashed var(--border-light); padding-top:0.5rem;">
         ${res.note}
@@ -600,6 +554,78 @@ function showErrorReceipt(title, message) {
       </p>
     </div>
   `;
+}
+
+// Secure Account Inquiry Search Handler (Only shows details when specific number or name is entered)
+function handleAccountSearch(e) {
+  e.preventDefault();
+  const input = document.getElementById('searchAccountInput').value.trim();
+  const container = document.getElementById('searchResultContainer');
+
+  try {
+    const acc = bank.findAccountByQuery(input);
+    const isSavings = acc instanceof SavingsAccount;
+    const typeClass = isSavings ? 'type-savings' : 'type-current';
+    const rateText = isSavings ? '4.0% p.a.' : '0.0% (N/A)';
+
+    container.innerHTML = `
+      <div class="account-detail-card">
+        <div class="account-detail-header">
+          <div>
+            <span class="account-num-text" style="font-size:1.1rem;">Account #${acc.getAccountNumber()}</span>
+            <span class="type-pill ${typeClass}" style="margin-left:0.6rem;">${acc.getAccountType()}</span>
+          </div>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Verified Account</span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-item-label">Account Holder</span>
+            <span class="detail-item-val">${escapeHtml(acc.getName())}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item-label">Annual Interest Rate</span>
+            <span class="detail-item-val">${rateText}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item-label">Current Savings Balance</span>
+            <span class="detail-balance">${formatRupees(acc.getBalance())}</span>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn btn-secondary btn-sm" onclick="quickFillAccount('deposit', ${acc.getAccountNumber()})">Deposit into #${acc.getAccountNumber()}</button>
+          <button class="btn btn-secondary btn-sm" onclick="quickFillAccount('withdraw', ${acc.getAccountNumber()})">Withdraw from #${acc.getAccountNumber()}</button>
+          <button class="btn btn-secondary btn-sm" onclick="quickFillAccount('calculate-interest', ${acc.getAccountNumber()})">Calculate Interest</button>
+        </div>
+      </div>
+    `;
+
+    // Also mirror to receipt panel
+    showBalanceReceipt(acc);
+
+  } catch (err) {
+    container.innerHTML = `
+      <div class="receipt-box error" style="margin-top:0.5rem;">
+        <span class="receipt-title error">Account Not Found</span>
+        <p style="font-size:0.85rem; color:var(--color-danger); margin-top:0.35rem;">
+          No bank account found matching "${escapeHtml(input)}". Please verify the account number or name and try again.
+        </p>
+      </div>
+    `;
+  }
+}
+
+// Quick action fill
+function quickFillAccount(action, accNum) {
+  switchAction(action);
+  setTimeout(() => {
+    const inp = document.getElementById('inpAccountNum');
+    if (inp) {
+      inp.value = accNum;
+      inp.focus();
+    }
+  }, 20);
 }
 
 function escapeHtml(str) {
@@ -630,21 +656,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Table sample data & reset buttons
+  // Search form submit
+  const searchForm = document.getElementById('searchAccountForm');
+  if (searchForm) {
+    searchForm.addEventListener('submit', handleAccountSearch);
+  }
+
+  // Sample data & reset buttons
   document.getElementById('btnSeedDemo').addEventListener('click', () => {
     seedInitialData();
     updateMetrics();
-    renderTable();
+    document.getElementById('searchResultContainer').innerHTML = `
+      <div class="privacy-notice">
+        Sample accounts reloaded (Purva Deshmukh #1001, Tech Innovations Ltd #1002, Aarav Mehta #1003). Enter an account number or name above to view details securely.
+      </div>
+    `;
   });
 
   document.getElementById('btnClearBank').addEventListener('click', () => {
     bank.accounts = [];
     Account.nextAccountNumber = 1001;
     updateMetrics();
-    renderTable();
+    document.getElementById('searchResultContainer').innerHTML = `
+      <div class="privacy-notice">
+        All accounts have been cleared. Select an operation to create a new account.
+      </div>
+    `;
     document.getElementById('receiptContainer').innerHTML = `
       <div class="receipt-placeholder">
-        All accounts have been cleared. Select an operation to create a new account.
+        All accounts cleared. Create a new account on the left to begin.
       </div>
     `;
   });
@@ -652,5 +692,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial render
   switchAction('create-savings');
   updateMetrics();
-  renderTable();
 });

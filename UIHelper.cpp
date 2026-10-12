@@ -125,7 +125,7 @@ namespace UI
     std::string formatCurrency(double amount)
     {
         std::stringstream ss;
-        ss << "$" << std::fixed << std::setprecision(2) << amount;
+        ss << "Rs. " << std::fixed << std::setprecision(2) << amount;
         return ss.str();
     }
 

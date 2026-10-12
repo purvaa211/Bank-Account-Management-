@@ -45,7 +45,7 @@
       </div>
       <div class="metric-card">
         <span class="metric-label">Total Deposits Under Management</span>
-        <span class="metric-value" id="statTotalBalance">$0.00</span>
+        <span class="metric-value" id="statTotalBalance">₹0.00</span>
       </div>
       <div class="metric-card">
         <span class="metric-label">Savings Accounts (4% Interest)</span>
@@ -74,7 +74,7 @@
           <div class="vertical-action-list">
             <button class="action-btn active" data-action="create-savings">
               <span class="btn-title">Create Savings Account</span>
-              <span class="btn-desc">Earns 4.0% annual interest</span>
+              <span class="btn-desc">Earns 4.0% annual interest rate</span>
             </button>
             <button class="action-btn" data-action="create-current">
               <span class="btn-title">Create Current Account</span>
@@ -122,37 +122,30 @@
 
     </div>
 
-    <!-- Bottom Section: Bank Account Directory Table -->
+    <!-- Bottom Section: Secure Account Inquiry & Passbook -->
     <div class="directory-section">
       <div class="card table-card">
         <div class="card-header flex-header">
           <div>
-            <h2>Bank Account Directory</h2>
-            <span class="card-subtitle">Complete registry of active bank accounts</span>
+            <h2>Secure Account Inquiry &amp; Passbook</h2>
+            <span class="card-subtitle">Enter an Account Number or Holder Name to access individual account details</span>
           </div>
           <div class="table-actions">
             <button class="btn btn-secondary btn-sm" id="btnSeedDemo">Load Sample Accounts</button>
             <button class="btn btn-secondary btn-sm" id="btnClearBank">Clear All</button>
           </div>
         </div>
-        <div class="table-wrapper">
-          <table class="accounts-table">
-            <thead>
-              <tr>
-                <th>Account #</th>
-                <th>Account Holder</th>
-                <th>Account Type</th>
-                <th>Interest Rate</th>
-                <th>Current Balance</th>
-                <th>Quick Actions</th>
-              </tr>
-            </thead>
-            <tbody id="accountsTableBody">
-              <tr class="empty-row">
-                <td colspan="6">No accounts registered yet. Use the operations form above or click "Load Sample Accounts".</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="card-body">
+          <form id="searchAccountForm" class="search-form-row">
+            <input type="text" class="form-control" id="searchAccountInput" placeholder="Enter Account Number (e.g. 1001) or Account Holder Name" required>
+            <button type="submit" class="btn btn-primary">Search Account</button>
+          </form>
+
+          <div id="searchResultContainer" class="search-result-area">
+            <div class="privacy-notice">
+              For privacy and security, account details and balances are not displayed publicly. Enter an Account Number or Holder Name above to securely view balance and savings details.
+            </div>
+          </div>
         </div>
       </div>
     </div>
