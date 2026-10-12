@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bank Account Management System</title>
+  <title>Bank Account Management</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,15 +11,23 @@
 </head>
 <body>
 
+  <!-- Splash Screen with Rotating Logo -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-content">
+      <div class="logo-wrapper">
+        <img src="logo.png" alt="Bank Logo" class="splash-logo rotating-logo">
+      </div>
+      <h2 class="splash-title">Bank Account Management</h2>
+      <p class="splash-subtitle">Loading Banking Portal...</p>
+    </div>
+  </div>
+
   <!-- Top Navigation Header -->
   <header class="navbar">
     <div class="nav-container">
       <div class="brand">
-        <div class="brand-badge">C++</div>
-        <div class="brand-text">
-          <h1>Bank Account Management System</h1>
-          <p>Object-Oriented Programming Course Project</p>
-        </div>
+        <img src="logo.png" alt="Bank Logo" class="brand-logo">
+        <h1 class="brand-title">Bank Account Management</h1>
       </div>
       <div class="header-status">
         <span class="status-indicator"></span>
@@ -28,7 +36,7 @@
     </div>
   </header>
 
-  <!-- Metrics Bar -->
+  <!-- Metrics Overview Bar -->
   <section class="metrics-bar">
     <div class="metrics-container">
       <div class="metric-card">
@@ -50,49 +58,49 @@
     </div>
   </section>
 
-  <!-- Main Content -->
+  <!-- Main Content Layout -->
   <main class="main-content">
     <div class="simulator-layout">
 
-      <!-- Left Column: Operations -->
+      <!-- Left Column: Vertical Operations List & Active Form -->
       <div class="operations-column">
         <div class="card">
           <div class="card-header">
             <h2>Banking Operations</h2>
-            <span class="card-subtitle">Select an operation below to perform banking transactions</span>
+            <span class="card-subtitle">Choose an operation from the list below</span>
           </div>
 
-          <!-- Operation Selector Buttons -->
-          <div class="action-grid">
+          <!-- Vertical Format Operations List -->
+          <div class="vertical-action-list">
             <button class="action-btn active" data-action="create-savings">
               <span class="btn-title">Create Savings Account</span>
-              <span class="btn-desc">4.0% annual interest rate</span>
+              <span class="btn-desc">Earns 4.0% annual interest</span>
             </button>
             <button class="action-btn" data-action="create-current">
               <span class="btn-title">Create Current Account</span>
-              <span class="btn-desc">Commercial checking (0% interest)</span>
+              <span class="btn-desc">Commercial checking with 0% interest</span>
             </button>
             <button class="action-btn" data-action="deposit">
               <span class="btn-title">Deposit Funds</span>
-              <span class="btn-desc">Credit amount to account</span>
+              <span class="btn-desc">Credit amount to account balance</span>
             </button>
             <button class="action-btn" data-action="withdraw">
               <span class="btn-title">Withdraw Funds</span>
-              <span class="btn-desc">Debit amount from account</span>
+              <span class="btn-desc">Debit amount from account balance</span>
             </button>
             <button class="action-btn" data-action="balance-inquiry">
               <span class="btn-title">Check Balance</span>
-              <span class="btn-desc">Fast balance &amp; passbook inquiry</span>
+              <span class="btn-desc">View balance and passbook summary</span>
             </button>
             <button class="action-btn" data-action="calculate-interest">
               <span class="btn-title">Calculate Interest</span>
-              <span class="btn-desc">Annual interest projection</span>
+              <span class="btn-desc">Simulate annual interest projection</span>
             </button>
           </div>
 
-          <!-- Dynamic Form Container -->
+          <!-- Operation Form Section -->
           <div class="form-container" id="actionFormContainer">
-            <!-- Form injected via JS -->
+            <!-- Form injected dynamically via app.js -->
           </div>
         </div>
       </div>
@@ -102,11 +110,11 @@
         <div class="card receipt-card">
           <div class="card-header">
             <h2>Transaction Audit Receipt</h2>
-            <span class="card-subtitle">Real-time receipt generated for every banking action</span>
+            <span class="card-subtitle">Instant receipt generated for banking operations</span>
           </div>
           <div class="card-body" id="receiptContainer">
             <div class="receipt-placeholder">
-              Select any banking operation on the left to process a transaction and view its generated receipt.
+              Select an operation on the left and submit to generate an audit receipt card.
             </div>
           </div>
         </div>
@@ -114,7 +122,7 @@
 
     </div>
 
-    <!-- Bottom Section: Bank Account Directory -->
+    <!-- Bottom Section: Bank Account Directory Table -->
     <div class="directory-section">
       <div class="card table-card">
         <div class="card-header flex-header">
@@ -154,7 +162,7 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-container">
-      <p>Bank Account Management System &bull; C++ Object-Oriented Programming Course Project</p>
+      <p>Bank Account Management System</p>
       <p>Author: Purva Deshmukh</p>
     </div>
   </footer>

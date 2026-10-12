@@ -613,6 +613,14 @@ function escapeHtml(str) {
 
 // Global initialization
 document.addEventListener('DOMContentLoaded', () => {
+  // Splash Screen Fade Out after rotating animation
+  const splash = document.getElementById('splashScreen');
+  if (splash) {
+    setTimeout(() => {
+      splash.classList.add('fade-out');
+    }, 1800);
+  }
+
   seedInitialData();
 
   // Action button clicks
