@@ -1,224 +1,283 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 #include "SavingsAccount.h"
 #include "CurrentAccount.h"
 #include "Bank.h"
 #include "Exceptions.h"
+#include "UIHelper.h"
 
-using namespace std;
+/**
+ * ============================================================================
+ * BANK ACCOUNT MANAGEMENT SYSTEM - MAIN DRIVER & CONTROLLER
+ * Demonstrates:
+ *   - Object-Oriented Programming (Classes, Objects, Inheritance, Polymorphism)
+ *   - Dynamic Memory Management (new / delete through Bank container)
+ *   - Exception Handling (try / throw / catch hierarchy)
+ *   - Separation of Concerns (UI separated from business logic)
+ * ============================================================================
+ */
+
+void printMainMenu(size_t activeAccounts)
+{
+    std::cout << UI::Color::BOLD_CYAN;
+    std::cout << "+====================================================================+\n";
+    std::cout << "|                 BANK ACCOUNT MANAGEMENT SYSTEM                     |\n";
+    std::cout << "|              C++ Object-Oriented Programming Project               |\n";
+    std::cout << "+====================================================================+\n" << UI::Color::RESET;
+
+    std::cout << UI::Color::BOLD_WHITE << " Status: " << UI::Color::GREEN << "Operational" 
+              << UI::Color::BOLD_WHITE << "   |   Active Accounts: " << UI::Color::BOLD_YELLOW << activeAccounts 
+              << UI::Color::RESET << "\n";
+
+    std::cout << UI::Color::CYAN;
+    std::cout << "+--------------------------------------------------------------------+\n";
+    std::cout << "| " << UI::Color::BOLD_YELLOW << "ACCOUNT CREATION & MANAGEMENT" << UI::Color::CYAN << "                                      |\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [1] " << UI::Color::WHITE << "Create Savings Account    " << UI::Color::GRAY << "(Earns 4.0% annual interest)       " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [2] " << UI::Color::WHITE << "Create Current Account    " << UI::Color::GRAY << "(Transactional / Checking account) " << UI::Color::CYAN << "|\n";
+    std::cout << "+--------------------------------------------------------------------+\n";
+    std::cout << "| " << UI::Color::BOLD_YELLOW << "TRANSACTIONS & OPERATIONS" << UI::Color::CYAN << "                                          |\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [3] " << UI::Color::WHITE << "Deposit Funds             " << UI::Color::GRAY << "(Add funds to balance)             " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [4] " << UI::Color::WHITE << "Withdraw Funds            " << UI::Color::GRAY << "(Deduct funds from balance)        " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [5] " << UI::Color::WHITE << "Check Balance             " << UI::Color::GRAY << "(Fast balance inquiry)             " << UI::Color::CYAN << "|\n";
+    std::cout << "+--------------------------------------------------------------------+\n";
+    std::cout << "| " << UI::Color::BOLD_YELLOW << "REPORTS & FILE PERSISTENCE" << UI::Color::CYAN << "                                         |\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [6] " << UI::Color::WHITE << "Display Account Details   " << UI::Color::GRAY << "(Full passbook card view)          " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [7] " << UI::Color::WHITE << "Display All Accounts      " << UI::Color::GRAY << "(Tabular list of all accounts)     " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [8] " << UI::Color::WHITE << "Calculate Interest        " << UI::Color::GRAY << "(Polymorphic interest simulation)  " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [9] " << UI::Color::WHITE << "Save Accounts to File     " << UI::Color::GRAY << "(Export database to accounts.txt)  " << UI::Color::CYAN << "|\n";
+    std::cout << "+--------------------------------------------------------------------+\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [10] " << UI::Color::RED << "Exit Program" << UI::Color::CYAN << "                                                 |\n";
+    std::cout << "+====================================================================+\n" << UI::Color::RESET;
+}
 
 int main()
 {
-    Bank bank;
+    // Initialize Windows terminal colors and UTF-8 support
+    UI::initTerminal();
 
-    int choice;
+    Bank bank;
+    int choice = 0;
 
     do
     {
-        cout << "\n===== BANK ACCOUNT MANAGEMENT SYSTEM =====" << endl;
-        cout << "1. Create Savings Account" << endl;
-        cout << "2. Create Current Account" << endl;
-        cout << "3. Deposit" << endl;
-        cout << "4. Withdraw" << endl;
-        cout << "5. Check Balance" << endl;
-        cout << "6. Display Account" << endl;
-        cout << "7. Display All Accounts" << endl;
-        cout << "8. Calculate Interest" << endl;
-        cout << "9. Save Accounts" << endl;
-        cout << "10. Exit" << endl;
+        UI::clearScreen();
+        printMainMenu(bank.getAccountCount());
 
-        cout << "\nEnter your choice: ";
-        cin >> choice;
+        choice = UI::getInt("\nEnter your choice (1-10): ", 1, 10);
 
-        if (choice == 1)
+        switch (choice)
         {
-            string name;
-            double balance;
-
-            cout << "Enter account holder name: ";
-            cin >> name;
-
-            cout << "Enter initial balance: ";
-            cin >> balance;
-
-            try
+            case 1: // Create Savings Account
             {
-                if (balance < 0)
+                UI::printSectionHeader("CREATE SAVINGS ACCOUNT (4% INTEREST)");
+                std::string name = UI::getString("Enter Account Holder's Full Name : ");
+                double balance = UI::getDouble("Enter Initial Opening Balance ($)   : ", 0.0);
+
+                try
                 {
-                    throw InvalidAmountException();
+                    // OOP Concept: Dynamic object creation & Inheritance
+                    Account* account = new SavingsAccount(name, balance);
+                    bank.addAccount(account);
+
+                    UI::printSuccess("Savings Account successfully opened!");
+                    account->display();
                 }
-
-                Account* account = new SavingsAccount(name, balance);
-
-                bank.addAccount(account);
-
-                cout << "Savings account created successfully." << endl;
-                cout << "Account Number: "
-                     << account->getAccountNumber() << endl;
-            }
-            catch (exception& e)
-            {
-                cout << e.what() << endl;
-            }
-        }
-
-        else if (choice == 2)
-        {
-            string name;
-            double balance;
-
-            cout << "Enter account holder name: ";
-            cin >> name;
-
-            cout << "Enter initial balance: ";
-            cin >> balance;
-
-            try
-            {
-                if (balance < 0)
+                catch (const std::exception& e)
                 {
-                    throw InvalidAmountException();
+                    UI::printError(e.what());
                 }
-
-                Account* account = new CurrentAccount(name, balance);
-
-                bank.addAccount(account);
-
-                cout << "Current account created successfully." << endl;
-                cout << "Account Number: "
-                     << account->getAccountNumber() << endl;
+                UI::pauseScreen();
+                break;
             }
-            catch (exception& e)
+
+            case 2: // Create Current Account
             {
-                cout << e.what() << endl;
+                UI::printSectionHeader("CREATE CURRENT ACCOUNT (0% INTEREST)");
+                std::string name = UI::getString("Enter Account Holder's Full Name : ");
+                double balance = UI::getDouble("Enter Initial Opening Balance ($)   : ", 0.0);
+
+                try
+                {
+                    // OOP Concept: Dynamic object creation & Inheritance
+                    Account* account = new CurrentAccount(name, balance);
+                    bank.addAccount(account);
+
+                    UI::printSuccess("Current Account successfully opened!");
+                    account->display();
+                }
+                catch (const std::exception& e)
+                {
+                    UI::printError(e.what());
+                }
+                UI::pauseScreen();
+                break;
             }
-        }
 
-        else if (choice == 3)
-        {
-            int accountNumber;
-            double amount;
-
-            cout << "Enter account number: ";
-            cin >> accountNumber;
-
-            cout << "Enter amount to deposit: ";
-            cin >> amount;
-
-            try
+            case 3: // Deposit Funds
             {
-                Account* account = bank.findAccount(accountNumber);
+                UI::printSectionHeader("DEPOSIT FUNDS");
+                int accNum = UI::getInt("Enter Account Number : ", 1000);
 
-                account->deposit(amount);
+                try
+                {
+                    Account* account = bank.findAccount(accNum);
+                    double prevBal = account->getBalance();
+
+                    std::cout << UI::Color::CYAN << "Verified Account Holder: " << UI::Color::BOLD_WHITE 
+                              << account->getName() << " (" << account->getAccountType() << ")\n" 
+                              << "Current Balance: " << UI::Color::BOLD_GREEN 
+                              << UI::formatCurrency(prevBal) << UI::Color::RESET << "\n";
+
+                    double amount = UI::getDouble("Enter Deposit Amount ($)  : ", 0.01);
+
+                    account->deposit(amount);
+                    double newBal = account->getBalance();
+
+                    UI::printSuccess("Funds deposited successfully!");
+                    UI::printReceipt(accNum, account->getName(), account->getAccountType(), 
+                                     "DEPOSIT", prevBal, amount, newBal);
+                }
+                catch (const std::exception& e)
+                {
+                    UI::printError(e.what());
+                }
+                UI::pauseScreen();
+                break;
             }
-            catch (exception& e)
+
+            case 4: // Withdraw Funds
             {
-                cout << e.what() << endl;
+                UI::printSectionHeader("WITHDRAW FUNDS");
+                int accNum = UI::getInt("Enter Account Number : ", 1000);
+
+                try
+                {
+                    Account* account = bank.findAccount(accNum);
+                    double prevBal = account->getBalance();
+
+                    std::cout << UI::Color::CYAN << "Verified Account Holder: " << UI::Color::BOLD_WHITE 
+                              << account->getName() << " (" << account->getAccountType() << ")\n" 
+                              << "Available Balance: " << UI::Color::BOLD_GREEN 
+                              << UI::formatCurrency(prevBal) << UI::Color::RESET << "\n";
+
+                    double amount = UI::getDouble("Enter Withdrawal Amount ($) : ", 0.01);
+
+                    account->withdraw(amount);
+                    double newBal = account->getBalance();
+
+                    UI::printSuccess("Withdrawal processed successfully!");
+                    UI::printReceipt(accNum, account->getName(), account->getAccountType(), 
+                                     "WITHDRAWAL", prevBal, amount, newBal);
+                }
+                catch (const std::exception& e)
+                {
+                    UI::printError(e.what());
+                }
+                UI::pauseScreen();
+                break;
             }
-        }
 
-        else if (choice == 4)
-        {
-            int accountNumber;
-            double amount;
-
-            cout << "Enter account number: ";
-            cin >> accountNumber;
-
-            cout << "Enter amount to withdraw: ";
-            cin >> amount;
-
-            try
+            case 5: // Check Balance
             {
-                Account* account = bank.findAccount(accountNumber);
+                UI::printSectionHeader("CHECK BALANCE INQUIRY");
+                int accNum = UI::getInt("Enter Account Number : ", 1000);
 
-                account->withdraw(amount);
+                try
+                {
+                    Account* account = bank.findAccount(accNum);
+
+                    std::cout << "\n" << UI::Color::BOLD_CYAN;
+                    std::cout << "+-------------------------------------------------------------+\n";
+                    std::cout << "|                      BALANCE INQUIRY                        |\n";
+                    std::cout << "+------------------------------+------------------------------+\n";
+                    std::cout << "| Account Number               | " << UI::Color::BOLD_WHITE << std::left << std::setw(28) << account->getAccountNumber() << UI::Color::CYAN << "|\n";
+                    std::cout << "| Account Holder               | " << UI::Color::BOLD_WHITE << std::left << std::setw(28) << account->getName() << UI::Color::CYAN << "|\n";
+                    std::cout << "| Account Type                 | " << UI::Color::YELLOW << std::left << std::setw(28) << account->getAccountType() << UI::Color::CYAN << "|\n";
+                    std::cout << "| Available Balance            | " << UI::Color::BOLD_GREEN << std::left << std::setw(28) << UI::formatCurrency(account->getBalance()) << UI::Color::CYAN << "|\n";
+                    std::cout << "+-------------------------------------------------------------+\n" << UI::Color::RESET;
+                }
+                catch (const std::exception& e)
+                {
+                    UI::printError(e.what());
+                }
+                UI::pauseScreen();
+                break;
             }
-            catch (exception& e)
+
+            case 6: // Display Account Details
             {
-                cout << e.what() << endl;
+                UI::printSectionHeader("DISPLAY ACCOUNT DETAILS");
+                int accNum = UI::getInt("Enter Account Number : ", 1000);
+
+                try
+                {
+                    Account* account = bank.findAccount(accNum);
+                    account->display();
+                }
+                catch (const std::exception& e)
+                {
+                    UI::printError(e.what());
+                }
+                UI::pauseScreen();
+                break;
             }
-        }
 
-        else if (choice == 5)
-        {
-            int accountNumber;
-
-            cout << "Enter account number: ";
-            cin >> accountNumber;
-
-            try
+            case 7: // Display All Accounts
             {
-                Account* account = bank.findAccount(accountNumber);
-
-                cout << "Current Balance: "
-                     << account->getBalance() << endl;
+                UI::printSectionHeader("DIRECTORY OF ALL BANK ACCOUNTS");
+                bank.displayAllAccounts();
+                UI::pauseScreen();
+                break;
             }
-            catch (exception& e)
+
+            case 8: // Calculate Interest (Polymorphism in action)
             {
-                cout << e.what() << endl;
+                UI::printSectionHeader("CALCULATE & PROJECT INTEREST");
+                int accNum = UI::getInt("Enter Account Number : ", 1000);
+
+                try
+                {
+                    Account* account = bank.findAccount(accNum);
+                    // OOP Concept: Runtime Polymorphism
+                    // calculateInterest() dynamically executes SavingsAccount or CurrentAccount method
+                    account->calculateInterest();
+                }
+                catch (const std::exception& e)
+                {
+                    UI::printError(e.what());
+                }
+                UI::pauseScreen();
+                break;
             }
-        }
 
-        else if (choice == 6)
-        {
-            int accountNumber;
-
-            cout << "Enter account number: ";
-            cin >> accountNumber;
-
-            try
+            case 9: // Save Accounts to File
             {
-                Account* account = bank.findAccount(accountNumber);
-
-                account->display();
+                UI::printSectionHeader("EXPORT DATABASE TO FILE");
+                bank.saveAccounts();
+                UI::pauseScreen();
+                break;
             }
-            catch (exception& e)
+
+            case 10: // Exit
             {
-                cout << e.what() << endl;
+                UI::clearScreen();
+                std::cout << UI::Color::BOLD_CYAN;
+                std::cout << "======================================================================\n";
+                std::cout << "          THANK YOU FOR USING BANK ACCOUNT MANAGEMENT SYSTEM          \n";
+                std::cout << "======================================================================\n" << UI::Color::RESET;
+                std::cout << UI::Color::GREEN << "All active records have been safely finalized in memory.\n";
+                std::cout << "Goodbye and have a productive day!\n\n" << UI::Color::RESET;
+                break;
             }
-        }
 
-        else if (choice == 7)
-        {
-            cout << "\nAll Accounts:" << endl;
-
-            bank.displayAllAccounts();
-        }
-
-        else if (choice == 8)
-        {
-            int accountNumber;
-
-            cout << "Enter account number: ";
-            cin >> accountNumber;
-
-            try
+            default:
             {
-                Account* account = bank.findAccount(accountNumber);
-
-                account->calculateInterest();
+                UI::printError("Invalid selection. Please choose an option between 1 and 10.");
+                UI::pauseScreen();
+                break;
             }
-            catch (exception& e)
-            {
-                cout << e.what() << endl;
-            }
-        }
-
-        else if (choice == 9)
-        {
-            bank.saveAccounts();
-        }
-
-        else if (choice == 10)
-        {
-            cout << "Thank you for using Bank Account Management System." << endl;
-        }
-
-        else
-        {
-            cout << "Invalid choice." << endl;
         }
 
     } while (choice != 10);
