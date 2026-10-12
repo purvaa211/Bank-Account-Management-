@@ -3,12 +3,22 @@
 
 #include "Account.h"
 
+/**
+ * ============================================================================
+ * OOP CONCEPT: INHERITANCE & METHOD OVERRIDING (POLYMORPHISM)
+ * SavingsAccount inherits publicly from Account.
+ * Implements calculateInterest() providing 4% annual interest rate.
+ * ============================================================================
+ */
 class SavingsAccount : public Account
 {
 public:
-    SavingsAccount(string n, double b);
+    SavingsAccount(const std::string& n, double b);
 
+    // Overriding pure virtual functions from Account base class
     void calculateInterest() override;
+    std::string getAccountType() const override;
+    double getInterestRate() const override;
 };
 
-#endif
+#endif // SAVINGSACCOUNT_H
