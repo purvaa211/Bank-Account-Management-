@@ -549,14 +549,14 @@ class Bank {
         nextTxId: Transaction.nextTransactionId,
         nextAlertId: FraudDetector.nextAlertId
       };
-      localStorage.setItem('smartbank_db_v2', JSON.stringify(data));
+      localStorage.setItem('smartbank_db_v3', JSON.stringify(data));
     } catch (err) {
       console.warn('Storage sync notice:', err);
     }
   }
 
   loadFromStorage() {
-    const raw = localStorage.getItem('smartbank_db_v2');
+    const raw = localStorage.getItem('smartbank_db_v3');
     if (!raw) {
       this.seedDefaultData();
       return;
@@ -594,8 +594,8 @@ class Bank {
 
   seedDefaultData() {
     this.accounts = [
-      new SavingsAccount('Purva Deshmukh', 75000.0, '2026-10-01', 1000.0, 'ACTIVE', 1001),
-      new CurrentAccount('Deshmukh Enterprises', 150000.0, '2026-10-05', 50000.0, 'ACTIVE', 1002),
+      new SavingsAccount('Vikram Malhotra', 75000.0, '2026-10-01', 1000.0, 'ACTIVE', 1001),
+      new CurrentAccount('Apex Global Enterprises', 150000.0, '2026-10-05', 50000.0, 'ACTIVE', 1002),
       new FixedDepositAccount('Aarav Sharma', 100000.0, 12, 0.0725, '2026-10-10', 107449.54, calculateFutureDate(12), 'ACTIVE', 1003)
     ];
 
@@ -1467,13 +1467,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1800);
   }
 
-  // Set Live Date
-  const dateEl = document.getElementById('liveDateDisplay');
-  if (dateEl) {
-    const today = new Date();
-    dateEl.textContent = `${today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} | Operational`;
-  }
-
   // Navigation Links
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
     link.addEventListener('click', (e) => {
@@ -1758,7 +1751,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Settings: Database actions
   document.getElementById('btnExportJSON')?.addEventListener('click', () => {
-    const raw = localStorage.getItem('smartbank_db_v2');
+    const raw = localStorage.getItem('smartbank_db_v3');
     const blob = new Blob([raw], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1770,7 +1763,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btnResetDemoData')?.addEventListener('click', () => {
     if (confirm('Reload default demo accounts and transactions?')) {
-      localStorage.removeItem('smartbank_db_v2');
+      localStorage.removeItem('smartbank_db_v3');
       bank.seedDefaultData();
       showToast('Default demo accounts reloaded.', 'info');
       refreshActivePage('dashboard');

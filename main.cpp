@@ -81,8 +81,8 @@ int main()
     // Seed sample accounts if completely fresh run
     if (bank.getAccountCount() == 0)
     {
-        bank.addAccount(new SavingsAccount("Purva Deshmukh", 75000.0, "2026-10-01", 1000.0));
-        bank.addAccount(new CurrentAccount("Deshmukh Enterprises", 150000.0, "2026-10-05", 50000.0));
+        bank.addAccount(new SavingsAccount("Vikram Malhotra", 75000.0, "2026-10-01", 1000.0));
+        bank.addAccount(new CurrentAccount("Apex Global Enterprises", 150000.0, "2026-10-05", 50000.0));
         bank.addAccount(new FixedDepositAccount("Aarav Sharma", 100000.0, 12, "2026-10-10", 0.0725));
         bank.deposit(1001, 15000.0, "Consulting remuneration");
         bank.transfer(1002, 1001, 20000.0, "Vendor payment");
