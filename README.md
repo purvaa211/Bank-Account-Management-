@@ -1,307 +1,207 @@
-# Bank Account Management System (C++ OOP Course Project)
+# SmartBank - Smart Banking & Transaction Security Management System
 
 > **Course:** Object-Oriented Programming (OOP) in C++  
 > **Author:** [Purva Deshmukh](https://github.com/purvaa211)  
 > **Repository:** [https://github.com/purvaa211/Bank-Account-Management-](https://github.com/purvaa211/Bank-Account-Management-)  
 > **Language / Standard:** C++ (C++11 / C++14 / C++17 compatible)  
+> **Interface:** C++ Interactive Terminal & Modern Fintech Web Dashboard  
 
 ---
 
-## 1. Project Purpose & Overview
+## 1. Project Overview
 
-The **Bank Account Management System** is a console-based application designed to demonstrate the core tenets of **Object-Oriented Programming (OOP)** in C++.
+**SmartBank** is a modern, modular banking and transaction security management system implemented in C++. Designed as an engineering course project for Object-Oriented Programming, it simulates a production-grade digital banking platform with multiple account specializations, atomic fund transfers, rule-based anomaly detection, persistent local storage, and official financial statements.
 
-The project demonstrates clean, syllabus-compliant OOP architecture combined with a structured console interface featuring ANSI color styling, formatted receipts, tabular passbook views, and robust input validation.
-
-### Key Highlights
-- **Core C++ OOP Principles**: Implements Abstraction, Encapsulation, Inheritance, and Runtime Polymorphism.
-- **Robust Exception Handling**: Custom exception hierarchy inheriting from `std::exception`.
-- **Memory Safety**: Dynamic memory allocation (`new` / `delete`) managed via STL `std::vector<Account*>`.
-- **Input Validation**: Safe line-based stream handling prevents buffer overflows and infinite loops on invalid input.
-- **File Persistence**: Formatted export of all bank records and summaries to `accounts.txt`.
-- **Build Automation**: Single-command compilation using `build.bat` (Windows), `make` (Linux/macOS), or standard `g++`.
+Beyond routine account operations, SmartBank integrates a rule-based Transaction Security Engine (`FraudDetector`) that analyzes transaction velocity, volume, and daily debit limits to classify financial events into distinct risk tiers (LOW, MEDIUM, HIGH) and prompt supervisory review.
 
 ---
 
-## 2. Project Architecture & File Structure
+## 2. Key Modules & Functional Capabilities
 
-The project strictly follows modular design with complete header (`.h`) and implementation (`.cpp`) separation:
+### A. Specialized Account Management
+- **Savings Account**: Offers 4.0% annual interest with an enforced minimum balance policy (Rs. 1,000.00). Transactions that would deplete reserves below this threshold are rejected.
+- **Current Account**: Commercial checking account with 0.0% interest and an approved, configurable Overdraft Protection Facility (default: Rs. 25,000.00).
+- **Fixed Deposit Account**: Term investment vehicle (6, 12, 24, 36 months) with quarterly compounding interest (up to 7.5% per annum), maturity date calculation, and premature liquidation notices.
+- **Account Lifecycle**: Creation, lookup by Account Number or Holder Name, passbook card view, and validated account termination (blocking closure if negative overdraft exists).
+
+### B. Financial Transactions & Atomic Execution
+- **Deposits**: Credits funds to destination account balance with instant receipt generation.
+- **Withdrawals**: Validates available balance, minimum balance constraints, and overdraft limits before debiting.
+- **Atomic Fund Transfers**: End-to-end atomic transfer between two distinct accounts, guaranteeing synchronized debit and credit operations.
+- **Ledger Recording**: Every transaction is assigned a unique auto-incremented ID (`TXN-10001`), timestamp, status, and security classification.
+
+### C. Smart Transaction Security & Fraud Monitor
+A rule-based C++ risk assessment engine examining transactions in real-time:
+1. **Large Transaction Alert**: Flags single transactions exceeding configurable thresholds (default: Rs. 50,000.00 for advisory review; Rs. 100,000.00 for critical review).
+2. **Daily Cumulative Debit Limit**: Tracks outgoing withdrawals and transfers per account within the calendar day to prevent rapid account draining (default: Rs. 100,000.00).
+3. **Rapid Velocity Alert**: Detects rapid consecutive transactions within a short time window (3 or more transactions within 2 minutes).
+- **Risk Categorization**:
+  - `LOW`: Standard authorized transaction.
+  - `MEDIUM`: Advisory threshold reached; flagged for administrative awareness.
+  - `HIGH`: Major security threshold breached; requires administrative authorization.
+
+### D. Audit Ledger & Financial Statements
+- Search transactions by Transaction ID or Account Number.
+- Filter records by operation type (`DEPOSIT`, `WITHDRAWAL`, `TRANSFER`) and risk level.
+- Generate certified bank statements displaying opening balances, inflows, outflows, and net balances.
+- Export statements to text files (`statements/statement_<accNum>.txt`) or print-ready PDF via the web platform.
+
+### E. Data Persistence
+- Real-time disk persistence for accounts, transactions, and security alerts via structured CSV files stored in `data/`:
+  - `data/accounts.csv`
+  - `data/transactions.csv`
+  - `data/security_alerts.csv`
+- Records survive application restarts and are automatically loaded on boot without duplicating identifiers.
+- Web platform synchronizes state seamlessly with browser `localStorage`.
+
+---
+
+## 3. Object-Oriented Programming (OOP) Implementation
+
+SmartBank is structured to demonstrate the principles of C++ Object-Oriented Programming:
+
+| OOP Concept | Implementation in SmartBank |
+| :--- | :--- |
+| **Encapsulation** | Sensitive members (`balance`, `accountNumber`, `status`) are strictly private and accessible only through validated methods (`deposit()`, `withdraw()`, `getBalance()`). |
+| **Abstraction** | `Account` serves as an abstract base class containing pure virtual functions (`calculateInterest()`, `getAccountType()`, `canWithdraw()`). |
+| **Inheritance** | Derived classes `SavingsAccount`, `CurrentAccount`, and `FixedDepositAccount` inherit from `Account`, specializing withdrawal and interest logic. |
+| **Runtime Polymorphism** | Virtual method dispatch allows the `Bank` container (`std::vector<Account*>`) to process polymorphic operations seamlessly at runtime. |
+| **Function Overloading** | Overloaded lookup functions (`findAccount(int)` and `findAccount(std::string)`) and overloaded constructors. |
+| **Operator Overloading** | Relational operators (`>`, `<`, `==`) overloaded to compare accounts based on balance and account number; stream operator (`<<`) overloaded for formatted output. |
+| **Constructors & Destructors** | Parameterized constructors with member initializer lists; virtual destructors ensure leak-free heap cleanup (`RAII`). |
+| **Static Members** | Auto-incrementing static counters `Account::nextAccountNumber`, `Transaction::nextTransactionSequence`, and `FraudDetector::nextAlertId`. |
+| **Custom Exception Handling** | Domain exception hierarchy rooted in `BankingException` (inheriting from `std::exception`), including `MinimumBalanceException`, `OverdraftExceededException`, `InsufficientBalanceException`, and `AccountNotFoundException`. |
+| **Composition & Aggregation** | `Bank` composes `FraudDetector` and `BankDatabase`, and aggregates a collection of heap-allocated `Account` pointers. |
+| **Friend Class** | `BankStatementGenerator` is declared as a `friend class` of `Account`, granting privileged access to internal fields for statement generation. |
+
+---
+
+## 4. Project Architecture & Directory Structure
 
 ```
 Bank-Account-Management-/
 |
-|-- Account.h               # Abstract Base Class header (encapsulation, pure virtual methods)
-|-- Account.cpp             # Base class implementations, static counter, transactions
-|-- SavingsAccount.h        # Derived Savings Account header (4% interest)
-|-- SavingsAccount.cpp      # Savings Account interest calculation implementation
-|-- CurrentAccount.h        # Derived Current Account header (0% checking)
-|-- CurrentAccount.cpp      # Current Account commercial logic implementation
-|-- Bank.h                  # Bank container class header (vector<Account*>, lookup)
-|-- Bank.cpp                # Bank operations, memory deallocation, file saving
-|-- Exceptions.h            # Custom domain exception hierarchy (std::exception)
-|-- UIHelper.h              # Terminal styling, ANSI colors, safe input parsing header
-|-- UIHelper.cpp            # UI formatting, transaction receipts, passbook display
-|-- main.cpp                # Menu controller & application entry point
+|-- Account.h / Account.cpp                     # Abstract Base Class with pure virtual methods
+|-- SavingsAccount.h / SavingsAccount.cpp       # Savings Account (4.0% interest, min balance)
+|-- CurrentAccount.h / CurrentAccount.cpp       # Current Account (overdraft protection facility)
+|-- FixedDepositAccount.h / .cpp                # Fixed Deposit Account (compounding & maturity)
+|-- Customer.h / Customer.cpp                   # Customer identity & contact entity
+|-- Transaction.h / Transaction.cpp             # Financial transaction record with static IDs
+|-- FraudDetector.h / FraudDetector.cpp         # Rule-based transaction security & anomaly engine
+|-- BankStatementGenerator.h / .cpp             # Friend class for privileged statement exports
+|-- BankDatabase.h / BankDatabase.cpp           # Persistent CSV database storage engine
+|-- Bank.h / Bank.cpp                           # Core banking controller & container
+|-- Exceptions.h                                # Custom banking exception hierarchy
+|-- UIHelper.h / UIHelper.cpp                   # Terminal styling, ANSI colors, and safe stream I/O
+|-- main.cpp                                    # Menu driver & console interface
 |
-|-- docs/                   # Web Platform (GitHub Pages)
-|   |-- index.html          # Interactive Web UI & OOP Inspector
-|   |-- style.css           # Modern Fintech stylesheet
-|   `-- app.js              # JavaScript OOP engine & C++ concept mappings
+|-- data/                                       # Persistent storage directory
+|   |-- accounts.csv                            # Serialized account records
+|   |-- transactions.csv                        # Serialized transaction history
+|   `-- security_alerts.csv                     # Serialized security anomaly log
 |
-|-- build.bat               # 1-Click Windows build & launch script
-|-- Makefile                # Cross-platform Makefile
-|-- .gitignore              # Git ignore rules for build artifacts
-`-- README.md               # Project documentation
+|-- statements/                                 # Generated bank statement text files
+|
+|-- docs/                                       # Modern Fintech Web Dashboard
+|   |-- index.html                              # Dashboard, Accounts, Transactions, Security, Statements
+|   |-- style.css                               # Deep navy fintech stylesheet & responsive layout
+|   |-- app.js                                  # JavaScript OOP engine & local persistence
+|   `-- logo.png                                # Official SmartBank branding asset
+|
+|-- build.bat                                   # One-click Windows build and launch script
+|-- run_website.bat                             # Direct browser launcher for web platform
+|-- Makefile                                    # Cross-platform GNU Makefile
+|-- index.html                                  # Root redirection entry point
+`-- README.md                                   # Comprehensive documentation
 ```
 
 ---
 
-## 3. Class Hierarchy & Architecture Diagram
+## 5. Installation and Execution
 
-```mermaid
-classDiagram
-    direction TB
+### Prerequisites
+- **C++ Compiler**: MinGW `g++` (version 5.0 or newer) supporting C++11 or higher.
+- **Operating System**: Windows, macOS, or Linux.
+- **Web Browser**: Chrome, Edge, Firefox, or Safari for the web platform.
 
-    class std_exception {
-        <<standard>>
-        +what() const noexcept
-    }
-
-    class BankingException {
-        #string message
-        +what() const noexcept
-    }
-
-    class InvalidAmountException {
-    }
-
-    class InsufficientBalanceException {
-    }
-
-    class AccountNotFoundException {
-    }
-
-    std_exception <|-- BankingException
-    BankingException <|-- InvalidAmountException
-    BankingException <|-- InsufficientBalanceException
-    BankingException <|-- AccountNotFoundException
-
-    class Account {
-        <<Abstract Base>>
-        -int accountNumber
-        -string name
-        -double balance
-        -static int nextAccountNumber
-        +Account(string n, double b)
-        +virtual ~Account()
-        +deposit(double amount) void
-        +withdraw(double amount) void
-        +virtual calculateInterest()* void
-        +virtual getAccountType()* string
-        +virtual getInterestRate()* double
-        +virtual display() const void
-        +getAccountNumber() const int
-        +getName() const string
-        +getBalance() const double
-        +static getNextAccountNumber() int
-    }
-
-    class SavingsAccount {
-        +SavingsAccount(string n, double b)
-        +calculateInterest() override void
-        +getAccountType() override string
-        +getInterestRate() override double
-    }
-
-    class CurrentAccount {
-        +CurrentAccount(string n, double b)
-        +calculateInterest() override void
-        +getAccountType() override string
-        +getInterestRate() override double
-    }
-
-    class Bank {
-        -vector~Account*~ accounts
-        +~Bank()
-        +addAccount(Account* acc) void
-        +findAccount(int accNum) Account*
-        +displayAllAccounts() const void
-        +saveAccounts() const void
-        +getAccountCount() const size_t
-        +getTotalBankBalance() const double
-    }
-
-    Account <|-- SavingsAccount : public inheritance
-    Account <|-- CurrentAccount : public inheritance
-    Bank o-- Account : manages collection of Account* pointers
-```
-
----
-
-## 4. Mapping of OOP Concepts to Code
-
-| OOP Concept | File / Implementation | Role & Implementation Details |
-|---|---|---|
-| **Class & Object** | `Account`, `Bank`, `SavingsAccount`, `CurrentAccount` | Encapsulates state and behaviors into logical real-world entities. |
-| **Encapsulation** | `Account.h` (`private` members, `public` getters/methods) | Protects internal state (`balance`, `accountNumber`) from direct external mutation. |
-| **Constructor** | `Account::Account(const string& n, double b)` | Initializes object attributes at creation and assigns auto-incremented account number. |
-| **`this` Pointer** | `Account.cpp` (`this->name = n; this->balance = b;`) | Resolves naming ambiguity between member variables and constructor parameters. |
-| **Destructor & Cleanup** | `Bank::~Bank()` | Iterates over the `vector<Account*>` and deallocates every dynamically allocated object (`delete account`). |
-| **Virtual Destructor** | `Account.h` (`virtual ~Account();`) | Ensures the complete derived class destructor chain runs when deleting via an `Account*` pointer. |
-| **Static Data Member** | `int Account::nextAccountNumber = 1001;` | A single shared counter across all account objects to guarantee unique, sequential account numbers. |
-| **Static Member Function** | `Account::getNextAccountNumber()` | Class-level utility function accessing static data without requiring an object instance. |
-| **Inheritance** | `SavingsAccount : public Account`, `CurrentAccount : public Account` | Reuses common banking logic (`deposit`, `withdraw`, `display`) while customizing account specifics. |
-| **Abstract Base Class** | `class Account` | Contains pure virtual functions (`= 0`), serving as an interface contract that cannot be instantiated directly. |
-| **Pure Virtual Function** | `virtual void calculateInterest() = 0;` | Enforces mandatory override in derived classes tailored to their interest rules (4% vs 0%). |
-| **Runtime Polymorphism** | `main.cpp` (`account->calculateInterest();`) | Dynamic dispatch: invoking virtual methods through `Account*` resolves to the actual derived object method at runtime. |
-| **Custom Exception Handling** | `Exceptions.h` (`InvalidAmountException`, etc.) | Domain-specific error reporting derived from `std::exception` handled cleanly with `try-throw-catch`. |
-| **STL Container** | `std::vector<Account*> accounts;` in `Bank` | Dynamic array container to hold, traverse, and manage polymorphic base-class pointers. |
-| **File Handling** | `Bank::saveAccounts()` using `std::ofstream` | Serializes in-memory account records and aggregate summaries into persistent disk storage (`accounts.txt`). |
-
----
-
-## 5. How to Build and Run
-
-### Windows (build.bat)
-Open Command Prompt or PowerShell in the project directory and run:
+### Option 1: One-Click Build on Windows
+Run `build.bat` from the project directory:
 ```cmd
 build.bat
 ```
-This compiles all files and launches the program.
+This automatically compiles the C++ codebase with `g++`, launches the fintech dashboard in your default browser, and starts the C++ console application.
 
-### Manual Compilation (g++)
+### Option 2: Manual Compilation with g++
+Compile all modular source files into an executable:
 ```bash
-g++ -std=c++11 -Wall -Wextra Account.cpp Bank.cpp CurrentAccount.cpp SavingsAccount.cpp UIHelper.cpp main.cpp -o bank_management.exe
-.\bank_management.exe
+g++ -std=c++11 -Wall -Wextra Account.cpp Bank.cpp BankDatabase.cpp BankStatementGenerator.cpp CurrentAccount.cpp Customer.cpp FixedDepositAccount.cpp FraudDetector.cpp SavingsAccount.cpp Transaction.cpp UIHelper.cpp main.cpp -o smartbank.exe
+```
+Execute the compiled binary:
+```bash
+./smartbank.exe
 ```
 
-### Makefile (Linux / macOS / MinGW)
+### Option 3: Using GNU Make
 ```bash
 make
-make run
+./smartbank
 ```
-To clean build artifacts:
-```bash
-make clean
+
+### Option 4: Launching the Web Platform Directly
+Open `docs/index.html` in any web browser, or run:
+```cmd
+run_website.bat
 ```
 
 ---
 
-## 6. Interactive Web Platform & GitHub Pages
+## 6. Screenshots & Interface Overview
 
-An interactive web version of the system is provided in the `docs/` folder to demonstrate the banking operations visually alongside live C++ OOP concept inspections:
-
-- **Live Web App:** [https://purvaa211.github.io/Bank-Account-Management-/](https://purvaa211.github.io/Bank-Account-Management-/)
-- **Local Browser Access:** Double-click `docs/index.html` or open it in any modern browser (pure client-side, no dependencies or web servers needed).
-
-### Web Platform Features
-- **Interactive Banking Operations:** Open Savings/Current accounts, perform deposits, withdrawals, and calculate interest in real-time.
-- **Synchronized C++ OOP Inspector:** Every action highlights the corresponding C++ source code snippet and explains the underlying OOP principle (Encapsulation, Polymorphism, Inheritance, Exception Handling).
-- **Simulated C++ Console Terminal:** Displays the exact ANSI-styled console output generated by the C++ executable.
-- **accounts.txt File Viewer & Downloader:** Previews and exports the persistent file record created by C++ `std::ofstream`.
-- **C++ Source Code Explorer:** Read the complete C++ header and implementation files right in the browser.
-
----
-
-## 7. Console Interface Overview
-
-### Main Dashboard
-A framed menu providing categorized operations with live active-account indicators:
+### A. Terminal Interface
 ```
 +====================================================================+
-|                 BANK ACCOUNT MANAGEMENT SYSTEM                     |
+|   SMARTBANK - SMART BANKING & TRANSACTION SECURITY SYSTEM          |
 |              C++ Object-Oriented Programming Project               |
 +====================================================================+
- Status: Operational   |   Active Accounts: 2
+ Accounts: 3  | Reserves: Rs. 340000.00  | Security Alerts: 1
 +--------------------------------------------------------------------+
-| ACCOUNT CREATION & MANAGEMENT                                      |
-|  [1] Create Savings Account    (Earns 4.0% annual interest)        |
-|  [2] Create Current Account    (Transactional / Checking account)  |
+| ACCOUNT MANAGEMENT                                                 |
+|  [1] Create Savings Account    (Min Balance Rs. 1,000 | 4.0% interest) |
+|  [2] Create Current Account    (Overdraft Protection | 0.0% interest)|
+|  [3] Create Fixed Deposit      (Term Investment | Guaranteed Maturity)|
+|  [4] Close Bank Account        (Validated Account Termination)        |
 +--------------------------------------------------------------------+
-| TRANSACTIONS & OPERATIONS                                          |
-|  [3] Deposit Funds             (Add funds to balance)              |
-|  [4] Withdraw Funds            (Deduct funds from balance)         |
-|  [5] Check Balance             (Fast balance inquiry)              |
+| FINANCIAL TRANSACTIONS                                             |
+|  [5] Deposit Funds             (Credit account balance)               |
+|  [6] Withdraw Funds            (Debit balance with limit check)       |
+|  [7] Transfer Money            (Atomic transfer between 2 accounts)   |
 +--------------------------------------------------------------------+
-| REPORTS & FILE PERSISTENCE                                         |
-|  [6] Display Account Details   (Full passbook card view)           |
-|  [7] Display All Accounts      (Tabular list of all accounts)      |
-|  [8] Calculate Interest        (Polymorphic interest simulation)   |
-|  [9] Save Accounts to File     (Export database to accounts.txt)   |
+| INQUIRY, STATEMENTS & AUDIT                                        |
+|  [8] Fast Account Inquiry      (Passbook card lookup)                 |
+|  [9] View All Accounts Directory(Tabular accounts registry)            |
+|  [10] Transaction History      (Audit ledger with filters)            |
+|  [11] Account Statement Export (Friend class statement export)        |
 +--------------------------------------------------------------------+
-|  [10] Exit Program                                                 |
+| SECURITY MONITORING & PLATFORM                                     |
+|  [12] Security Center          (Rule-based Fraud Monitoring Alerts)   |
+|  [13] Save & Persist Database  (Sync to data/ CSV files)              |
+|  [14] Open Web Platform        (Launch Fintech GUI in Browser)        |
+|  [15] Exit Application         (Safe shutdown and storage sync)       |
 +====================================================================+
 ```
 
-### Transaction Receipt (Deposit / Withdrawal)
-Every deposit and withdrawal generates an audit receipt:
-```
-+-------------------------------------------------------------+
-|                    TRANSACTION RECEIPT                      |
-+------------------------------+------------------------------+
-| Account Number               | 1001                         |
-| Account Holder               | Purva Deshmukh               |
-| Account Type                 | Savings Account              |
-| Transaction Type             | DEPOSIT                      |
-| Previous Balance             | $10,000.00                   |
-| Transaction Amount           | $5,000.00                    |
-| Updated Balance              | $15,000.00                   |
-+-------------------------------------------------------------+
-[SUCCESS] Funds deposited successfully!
-```
-
-### Account Passbook Card
-```
-+-------------------------------------------------------------+
-|                     ACCOUNT PASSBOOK CARD                   |
-+------------------------------+------------------------------+
-| Account Number               | 1001                         |
-| Account Holder               | Purva Deshmukh               |
-| Account Type                 | Savings Account              |
-| Current Balance              | $15,000.00                   |
-+-------------------------------------------------------------+
-```
-
-### Tabular Account Directory
-Displays all accounts in an aligned grid with summary totals:
-```
-+-------+--------------------------------+-----------------+-----------------+
-| ACC # | ACCOUNT HOLDER                 | ACCOUNT TYPE    | CURRENT BALANCE |
-+-------+--------------------------------+-----------------+-----------------+
-| 1001  | Purva Deshmukh                 | Savings Account |      $15,000.00 |
-| 1002  | Tech Innovations Ltd           | Current Account |      $25,000.00 |
-+-------+--------------------------------+-----------------+-----------------+
- Total Accounts: 2   |   Total Deposits Under Management: $40,000.00
-```
-
-### Persistent Disk Export (accounts.txt)
-Option 9 exports complete records into human-readable format:
-```
-======================================================================
-                 BANK ACCOUNT MANAGEMENT SYSTEM RECORD                
-======================================================================
-
-Account Number : 1001
-Account Holder : Purva Deshmukh
-Account Type   : Savings Account
-Balance        : $15000.00
-Interest Rate  : 4.0%
-----------------------------------------------------------------------
-Account Number : 1002
-Account Holder : Tech Innovations Ltd
-Account Type   : Current Account
-Balance        : $25000.00
-Interest Rate  : 0.0%
-----------------------------------------------------------------------
-
-SUMMARY:
-Total Accounts : 2
-Total Reserves : $40000.00
-======================================================================
-```
+### B. Web Fintech Dashboard Layout
+- **Sidebar**: Quick navigation between Dashboard, Accounts, Transactions, Security Center, Statements, and Settings.
+- **Dashboard**: Live financial statistics, canvas-rendered cash flow charts, and real-time security risk breakdown.
+- **Accounts**: Filterable registry with passbook views, interest simulations, and creation forms.
+- **Transactions**: Dedicated tabs for deposits, withdrawals, and transfers with instant ledger receipts.
+- **Security Center**: Live table of flagged events showing transaction ID, amount, risk tier, flag reason, and approval workflows.
+- **Statements**: Official printable bank letterhead with transaction ledger and PDF export support.
 
 ---
 
-## Author
-- **Purva Deshmukh** — [GitHub Profile](https://github.com/purvaa211)
-- Repository: [https://github.com/purvaa211/Bank-Account-Management-](https://github.com/purvaa211/Bank-Account-Management-)
+## 7. Author
+
+- **Author:** Purva Deshmukh
+- **GitHub:** [@purvaa211](https://github.com/purvaa211)
+- **Repository:** [https://github.com/purvaa211/Bank-Account-Management-](https://github.com/purvaa211/Bank-Account-Management-)

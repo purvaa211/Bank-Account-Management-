@@ -4,8 +4,8 @@
 *.obj
 *.out
 
-# Saved bank data files
-accounts.txt
+# Generated bank statement files
+statements/*.txt
 
 # IDE files
 .vscode/

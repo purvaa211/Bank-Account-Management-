@@ -3,10 +3,10 @@ CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Wextra -O2
 
 # Target executable
-TARGET = bank_management
+TARGET = smartbank
 
 # Source and object files
-SRCS = Account.cpp Bank.cpp CurrentAccount.cpp SavingsAccount.cpp UIHelper.cpp main.cpp
+SRCS = Account.cpp Bank.cpp BankDatabase.cpp BankStatementGenerator.cpp CurrentAccount.cpp Customer.cpp FixedDepositAccount.cpp FraudDetector.cpp SavingsAccount.cpp Transaction.cpp UIHelper.cpp main.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Default rule
@@ -20,7 +20,7 @@ $(TARGET): $(OBJS)
 
 # Clean rule
 clean:
-	rm -f $(OBJS) $(TARGET) $(TARGET).exe accounts.txt
+	rm -f $(OBJS) $(TARGET) $(TARGET).exe bank_management.exe
 
 # Run rule
 run: $(TARGET)

@@ -1,22 +1,67 @@
 #include "SavingsAccount.h"
+#include "Exceptions.h"
 #include "UIHelper.h"
 #include <iostream>
 
-SavingsAccount::SavingsAccount(const std::string& n, double b)
-    : Account(n, b)
+SavingsAccount::SavingsAccount(const std::string& n, double b, const std::string& date, double minBal)
+    : Account(n, b, date), minimumBalance(minBal), interestRate(0.04)
 {
-    // Constructor delegates initialization to base class Account constructor
+}
+
+SavingsAccount::SavingsAccount(int accNum, const std::string& n, double b, const std::string& stat, const std::string& date, double minBal)
+    : Account(accNum, n, b, stat, date), minimumBalance(minBal), interestRate(0.04)
+{
+}
+
+bool SavingsAccount::canWithdraw(double amount, std::string& reason) const
+{
+    if (amount <= 0)
+    {
+        reason = "Withdrawal amount must be greater than zero.";
+        return false;
+    }
+
+    if ((getBalance() - amount) < minimumBalance)
+    {
+        reason = "Withdrawal violates minimum balance requirement of " + 
+                 UI::formatCurrency(minimumBalance) + ". Current balance: " + 
+                 UI::formatCurrency(getBalance());
+        return false;
+    }
+
+    return true;
+}
+
+void SavingsAccount::withdraw(double amount)
+{
+    if (!isActive())
+    {
+        throw AccountClosedException(getAccountNumber());
+    }
+
+    if (amount <= 0)
+    {
+        throw InvalidAmountException("Withdrawal amount must be greater than zero.");
+    }
+
+    std::string reason;
+    if (!canWithdraw(amount, reason))
+    {
+        throw MinimumBalanceException(minimumBalance, getBalance() - amount);
+    }
+
+    setBalance(getBalance() - amount);
 }
 
 void SavingsAccount::calculateInterest()
 {
-    // Savings accounts earn 4% annual interest
-    const double interestRate = 0.04;
     double interest = getBalance() * interestRate;
     double projectedBalance = getBalance() + interest;
 
     UI::printInterestCard(getAccountNumber(), getName(), getAccountType(), 
                           interestRate, getBalance(), interest, projectedBalance);
+    UI::printInfo("Savings account maintains minimum balance threshold of " + 
+                  UI::formatCurrency(minimumBalance));
 }
 
 std::string SavingsAccount::getAccountType() const
@@ -26,5 +71,10 @@ std::string SavingsAccount::getAccountType() const
 
 double SavingsAccount::getInterestRate() const
 {
-    return 0.04; // 4%
+    return interestRate;
+}
+
+double SavingsAccount::getMinimumBalance() const
+{
+    return minimumBalance;
 }

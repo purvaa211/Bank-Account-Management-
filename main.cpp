@@ -4,94 +4,115 @@
 
 #include "SavingsAccount.h"
 #include "CurrentAccount.h"
+#include "FixedDepositAccount.h"
 #include "Bank.h"
 #include "Exceptions.h"
 #include "UIHelper.h"
 
 /**
  * ============================================================================
- * BANK ACCOUNT MANAGEMENT SYSTEM - MAIN DRIVER & CONTROLLER
- * Demonstrates:
- *   - Object-Oriented Programming (Classes, Objects, Inheritance, Polymorphism)
- *   - Dynamic Memory Management (new / delete through Bank container)
- *   - Exception Handling (try / throw / catch hierarchy)
- *   - Separation of Concerns (UI separated from business logic)
+ * SMARTBANK – SMART BANKING & TRANSACTION SECURITY MANAGEMENT SYSTEM
+ * Course: Object-Oriented Programming (OOP) in C++
+ * Author: Purva Deshmukh
+ *
+ * Demonstrates Core OOP Principles:
+ *   1. Encapsulation (Private account data, validated accessor methods)
+ *   2. Abstraction (Pure virtual functions in abstract base Account)
+ *   3. Inheritance (SavingsAccount, CurrentAccount, FixedDepositAccount)
+ *   4. Runtime Polymorphism (Virtual dispatch via Account* base pointers)
+ *   5. Function Overloading (findAccount by ID vs Name)
+ *   6. Operator Overloading (Account comparison >, <, == and stream <<)
+ *   7. Constructors, Destructors & RAII memory management
+ *   8. Static Members (Auto-increment Account, Transaction, and Alert counters)
+ *   9. Exception Handling (Hierarchical custom banking domain exceptions)
+ *   10. Composition & Aggregation (Bank, FraudDetector, BankDatabase, Transaction)
+ *   11. Friend Class (BankStatementGenerator for privileged statement generation)
+ *   12. Data Persistence (CSV files for accounts, transactions, and security alerts)
  * ============================================================================
  */
 
-void printMainMenu(size_t activeAccounts)
+void printMainMenu(size_t activeAccounts, double totalReserves, size_t totalAlerts)
 {
     std::cout << UI::Color::BOLD_CYAN;
     std::cout << "+====================================================================+\n";
-    std::cout << "|                 BANK ACCOUNT MANAGEMENT SYSTEM                     |\n";
+    std::cout << "|   SMARTBANK - SMART BANKING & TRANSACTION SECURITY SYSTEM          |\n";
     std::cout << "|              C++ Object-Oriented Programming Project               |\n";
     std::cout << "+====================================================================+\n" << UI::Color::RESET;
 
-    std::cout << UI::Color::BOLD_WHITE << " Status: " << UI::Color::GREEN << "Operational" 
-              << UI::Color::BOLD_WHITE << "   |   Active Accounts: " << UI::Color::BOLD_YELLOW << activeAccounts 
+    std::cout << UI::Color::BOLD_WHITE << " Accounts: " << UI::Color::BOLD_YELLOW << activeAccounts 
+              << UI::Color::BOLD_WHITE << "  | Reserves: " << UI::Color::BOLD_GREEN << UI::formatCurrency(totalReserves)
+              << UI::Color::BOLD_WHITE << "  | Security Alerts: " 
+              << (totalAlerts > 0 ? UI::Color::BOLD_RED : UI::Color::BOLD_GREEN) << totalAlerts
               << UI::Color::RESET << "\n";
 
     std::cout << UI::Color::CYAN;
     std::cout << "+--------------------------------------------------------------------+\n";
-    std::cout << "| " << UI::Color::BOLD_YELLOW << "ACCOUNT CREATION & MANAGEMENT" << UI::Color::CYAN << "                                      |\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [1] " << UI::Color::WHITE << "Create Savings Account    " << UI::Color::GRAY << "(Earns 4.0% annual interest)       " << UI::Color::CYAN << "|\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [2] " << UI::Color::WHITE << "Create Current Account    " << UI::Color::GRAY << "(Transactional / Checking account) " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_YELLOW << "ACCOUNT MANAGEMENT" << UI::Color::CYAN << "                                                 |\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [1] " << UI::Color::WHITE << "Create Savings Account    " << UI::Color::GRAY << "(Min Balance Rs. 1,000 | 4.0% interest) " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [2] " << UI::Color::WHITE << "Create Current Account    " << UI::Color::GRAY << "(Overdraft Protection | 0.0% interest)" << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [3] " << UI::Color::WHITE << "Create Fixed Deposit      " << UI::Color::GRAY << "(Term Investment | Guaranteed Maturity)" << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [4] " << UI::Color::WHITE << "Close Bank Account        " << UI::Color::GRAY << "(Validated Account Termination)        " << UI::Color::CYAN << "|\n";
     std::cout << "+--------------------------------------------------------------------+\n";
-    std::cout << "| " << UI::Color::BOLD_YELLOW << "TRANSACTIONS & OPERATIONS" << UI::Color::CYAN << "                                          |\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [3] " << UI::Color::WHITE << "Deposit Funds             " << UI::Color::GRAY << "(Add funds to balance)             " << UI::Color::CYAN << "|\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [4] " << UI::Color::WHITE << "Withdraw Funds            " << UI::Color::GRAY << "(Deduct funds from balance)        " << UI::Color::CYAN << "|\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [5] " << UI::Color::WHITE << "Check Balance             " << UI::Color::GRAY << "(Fast balance inquiry)             " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_YELLOW << "FINANCIAL TRANSACTIONS" << UI::Color::CYAN << "                                             |\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [5] " << UI::Color::WHITE << "Deposit Funds             " << UI::Color::GRAY << "(Credit account balance)               " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [6] " << UI::Color::WHITE << "Withdraw Funds            " << UI::Color::GRAY << "(Debit balance with limit check)       " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [7] " << UI::Color::WHITE << "Transfer Money            " << UI::Color::GRAY << "(Atomic transfer between 2 accounts)   " << UI::Color::CYAN << "|\n";
     std::cout << "+--------------------------------------------------------------------+\n";
-    std::cout << "| " << UI::Color::BOLD_YELLOW << "REPORTS & FILE PERSISTENCE" << UI::Color::CYAN << "                                         |\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [6] " << UI::Color::WHITE << "Display Account Details   " << UI::Color::GRAY << "(Full passbook card view)          " << UI::Color::CYAN << "|\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [7] " << UI::Color::WHITE << "Display All Accounts      " << UI::Color::GRAY << "(Tabular list of all accounts)     " << UI::Color::CYAN << "|\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [8] " << UI::Color::WHITE << "Calculate Interest        " << UI::Color::GRAY << "(Polymorphic interest simulation)  " << UI::Color::CYAN << "|\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [9] " << UI::Color::WHITE << "Save Accounts to File     " << UI::Color::GRAY << "(Export database to accounts.txt)  " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_YELLOW << "INQUIRY, STATEMENTS & AUDIT" << UI::Color::CYAN << "                                        |\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [8] " << UI::Color::WHITE << "Fast Account Inquiry      " << UI::Color::GRAY << "(Passbook card lookup)                 " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [9] " << UI::Color::WHITE << "View All Accounts Directory" << UI::Color::GRAY << "(Tabular accounts registry)            " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [10]" << UI::Color::WHITE << " Transaction History      " << UI::Color::GRAY << "(Audit ledger with filters)            " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [11]" << UI::Color::WHITE << " Account Statement Export " << UI::Color::GRAY << "(Friend class statement export)        " << UI::Color::CYAN << "|\n";
     std::cout << "+--------------------------------------------------------------------+\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [10] " << UI::Color::CYAN << "Open Web Platform in Browser" << UI::Color::GRAY << " (Interactive GUI & OOP Inspector)" << UI::Color::CYAN << "|\n";
-    std::cout << "| " << UI::Color::BOLD_WHITE << " [11] " << UI::Color::RED << "Exit Program" << UI::Color::CYAN << "                                                 |\n";
+    std::cout << "| " << UI::Color::BOLD_YELLOW << "SECURITY MONITORING & PLATFORM" << UI::Color::CYAN << "                                     |\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [12]" << UI::Color::BOLD_MAGENTA << " Security Center          " << UI::Color::GRAY << "(Rule-based Fraud Monitoring Alerts)   " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [13]" << UI::Color::CYAN << " Save & Persist Database  " << UI::Color::GRAY << "(Sync to data/ CSV files)              " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [14]" << UI::Color::CYAN << " Open Web Platform        " << UI::Color::GRAY << "(Launch Fintech GUI in Browser)        " << UI::Color::CYAN << "|\n";
+    std::cout << "| " << UI::Color::BOLD_WHITE << " [15]" << UI::Color::RED << " Exit Application         " << UI::Color::GRAY << "(Safe shutdown and storage sync)       " << UI::Color::CYAN << "|\n";
     std::cout << "+====================================================================+\n" << UI::Color::RESET;
 }
 
 int main()
 {
-    // Initialize Windows terminal colors and UTF-8 support
     UI::initTerminal();
 
-    // Automatically launch the interactive web platform in the default browser
-    std::cout << UI::Color::BOLD_CYAN << "[LAUNCH] Opening Interactive Web Platform in default browser...\n" << UI::Color::RESET;
-#ifdef _WIN32
-    system("start docs\\index.html");
-#elif __APPLE__
-    system("open docs/index.html");
-#else
-    system("xdg-open docs/index.html > /dev/null 2>&1 &");
-#endif
-
     Bank bank;
+
+    // Seed sample accounts if completely fresh run
+    if (bank.getAccountCount() == 0)
+    {
+        bank.addAccount(new SavingsAccount("Purva Deshmukh", 75000.0, "2026-10-01", 1000.0));
+        bank.addAccount(new CurrentAccount("Deshmukh Enterprises", 150000.0, "2026-10-05", 50000.0));
+        bank.addAccount(new FixedDepositAccount("Aarav Sharma", 100000.0, 12, "2026-10-10", 0.0725));
+        bank.deposit(1001, 15000.0, "Consulting remuneration");
+        bank.transfer(1002, 1001, 20000.0, "Vendor payment");
+        bank.saveData();
+    }
+
     int choice = 0;
 
     do
     {
+        if (std::cin.eof()) break;
         UI::clearScreen();
-        printMainMenu(bank.getAccountCount());
+        printMainMenu(bank.getAccountCount(), bank.getTotalBankBalance(), 
+                      bank.getFraudDetector().getTotalAlertsCount());
 
-        choice = UI::getInt("\nEnter your choice (1-11): ", 1, 11);
+        choice = UI::getInt("\nEnter your operation choice (1-15): ", 1, 15);
+        if (std::cin.eof() && choice == 1) break;
 
         switch (choice)
         {
             case 1: // Create Savings Account
             {
-                UI::printSectionHeader("CREATE SAVINGS ACCOUNT (4% INTEREST)");
+                UI::printSectionHeader("CREATE SAVINGS ACCOUNT (4% INTEREST | RS. 1,000 MIN BAL)");
                 std::string name = UI::getString("Enter Account Holder's Full Name : ");
-                double balance = UI::getDouble("Enter Initial Opening Balance (Rs.) : ", 0.0);
+                double balance = UI::getDouble("Enter Initial Opening Balance (Rs.) [Min 1000] : ", 1000.0);
 
                 try
                 {
-                    // OOP Concept: Dynamic object creation & Inheritance
                     Account* account = new SavingsAccount(name, balance);
                     bank.addAccount(account);
-
                     UI::printSuccess("Savings Account successfully opened!");
                     account->display();
                 }
@@ -105,17 +126,17 @@ int main()
 
             case 2: // Create Current Account
             {
-                UI::printSectionHeader("CREATE CURRENT ACCOUNT (0% INTEREST)");
-                std::string name = UI::getString("Enter Account Holder's Full Name : ");
-                double balance = UI::getDouble("Enter Initial Opening Balance (Rs.) : ", 0.0);
+                UI::printSectionHeader("CREATE CURRENT ACCOUNT (COMMERCIAL | OVERDRAFT PROTECTION)");
+                std::string name = UI::getString("Enter Business / Account Holder Name : ");
+                double balance = UI::getDouble("Enter Initial Opening Balance (Rs.)      : ", 0.0);
+                double overdraft = UI::getDouble("Enter Approved Overdraft Limit (Rs.)    : ", 0.0);
 
                 try
                 {
-                    // OOP Concept: Dynamic object creation & Inheritance
-                    Account* account = new CurrentAccount(name, balance);
+                    Account* account = new CurrentAccount(name, balance, "", overdraft);
                     bank.addAccount(account);
-
-                    UI::printSuccess("Current Account successfully opened!");
+                    UI::printSuccess("Current Account successfully opened with Rs. " + 
+                                     std::to_string(overdraft) + " overdraft limit!");
                     account->display();
                 }
                 catch (const std::exception& e)
@@ -126,29 +147,86 @@ int main()
                 break;
             }
 
-            case 3: // Deposit Funds
+            case 3: // Create Fixed Deposit
+            {
+                UI::printSectionHeader("CREATE FIXED DEPOSIT ACCOUNT (COMPOUND INTEREST)");
+                std::string name = UI::getString("Enter Account Holder's Full Name        : ");
+                double principal = UI::getDouble("Enter Fixed Deposit Principal (Rs.)     : ", 5000.0);
+                int term = UI::getInt("Enter Investment Term (6, 12, 24, 36 Months) : ", 1, 120);
+
+                double rate = (term >= 36) ? 0.075 : ((term >= 12) ? 0.070 : 0.065);
+
+                try
+                {
+                    Account* account = new FixedDepositAccount(name, principal, term, "", rate);
+                    bank.addAccount(account);
+                    UI::printSuccess("Fixed Deposit successfully booked!");
+                    account->display();
+                }
+                catch (const std::exception& e)
+                {
+                    UI::printError(e.what());
+                }
+                UI::pauseScreen();
+                break;
+            }
+
+            case 4: // Close Bank Account
+            {
+                UI::printSectionHeader("CLOSE BANK ACCOUNT");
+                int accNum = UI::getInt("Enter Account Number to Close : ");
+
+                try
+                {
+                    Account* acc = bank.findAccount(accNum);
+                    acc->display();
+
+                    std::string confirm = UI::getString("Are you sure you want to permanently close this account? (yes/no): ");
+                    if (confirm == "yes" || confirm == "y" || confirm == "YES")
+                    {
+                        bank.closeAccount(accNum);
+                        UI::printSuccess("Account #" + std::to_string(accNum) + " has been successfully closed.");
+                    }
+                    else
+                    {
+                        UI::printInfo("Account closure aborted.");
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    UI::printError(e.what());
+                }
+                UI::pauseScreen();
+                break;
+            }
+
+            case 5: // Deposit
             {
                 UI::printSectionHeader("DEPOSIT FUNDS");
-                int accNum = UI::getInt("Enter Account Number : ", 1000);
+                int accNum = UI::getInt("Enter Destination Account Number : ");
 
                 try
                 {
                     Account* account = bank.findAccount(accNum);
                     double prevBal = account->getBalance();
-
-                    std::cout << UI::Color::CYAN << "Verified Account Holder: " << UI::Color::BOLD_WHITE 
-                              << account->getName() << " (" << account->getAccountType() << ")\n" 
-                              << "Current Balance: " << UI::Color::BOLD_GREEN 
+                    std::cout << "Holder: " << UI::Color::BOLD_WHITE << account->getName() 
+                              << UI::Color::RESET << " | Current Balance: " << UI::Color::BOLD_GREEN 
                               << UI::formatCurrency(prevBal) << UI::Color::RESET << "\n";
 
-                    double amount = UI::getDouble("Enter Deposit Amount (Rs.)    : ", 0.01);
+                    double amount = UI::getDouble("Enter Deposit Amount (Rs.)       : ", 0.01);
+                    std::string note = UI::getString("Enter Transaction Narration / Note: ");
 
-                    account->deposit(amount);
-                    double newBal = account->getBalance();
-
-                    UI::printSuccess("Funds deposited successfully!");
+                    Transaction tx = bank.deposit(accNum, amount, note);
+                    UI::printSuccess("Deposit completed successfully!");
                     UI::printReceipt(accNum, account->getName(), account->getAccountType(), 
-                                     "DEPOSIT", prevBal, amount, newBal);
+                                     "DEPOSIT", prevBal, amount, account->getBalance(), 
+                                     tx.getTransactionId(), tx.getRiskLevel());
+
+                    if (tx.getRiskLevel() != "LOW")
+                    {
+                        UI::printWarning("SECURITY ALERT: This deposit was flagged as " + 
+                                          tx.getRiskLevel() + " risk: " + tx.getFlagReason());
+                    }
                 }
                 catch (const std::exception& e)
                 {
@@ -158,29 +236,33 @@ int main()
                 break;
             }
 
-            case 4: // Withdraw Funds
+            case 6: // Withdraw
             {
                 UI::printSectionHeader("WITHDRAW FUNDS");
-                int accNum = UI::getInt("Enter Account Number : ", 1000);
+                int accNum = UI::getInt("Enter Source Account Number : ");
 
                 try
                 {
                     Account* account = bank.findAccount(accNum);
                     double prevBal = account->getBalance();
-
-                    std::cout << UI::Color::CYAN << "Verified Account Holder: " << UI::Color::BOLD_WHITE 
-                              << account->getName() << " (" << account->getAccountType() << ")\n" 
-                              << "Available Balance: " << UI::Color::BOLD_GREEN 
+                    std::cout << "Holder: " << UI::Color::BOLD_WHITE << account->getName() 
+                              << UI::Color::RESET << " | Available Balance: " << UI::Color::BOLD_GREEN 
                               << UI::formatCurrency(prevBal) << UI::Color::RESET << "\n";
 
-                    double amount = UI::getDouble("Enter Withdrawal Amount (Rs.) : ", 0.01);
+                    double amount = UI::getDouble("Enter Withdrawal Amount (Rs.)    : ", 0.01);
+                    std::string note = UI::getString("Enter Withdrawal Reason / Note  : ");
 
-                    account->withdraw(amount);
-                    double newBal = account->getBalance();
-
-                    UI::printSuccess("Withdrawal processed successfully!");
+                    Transaction tx = bank.withdraw(accNum, amount, note);
+                    UI::printSuccess("Withdrawal completed successfully!");
                     UI::printReceipt(accNum, account->getName(), account->getAccountType(), 
-                                     "WITHDRAWAL", prevBal, amount, newBal);
+                                     "WITHDRAWAL", prevBal, amount, account->getBalance(), 
+                                     tx.getTransactionId(), tx.getRiskLevel());
+
+                    if (tx.getRiskLevel() != "LOW")
+                    {
+                        UI::printWarning("SECURITY ALERT: This withdrawal was flagged as " + 
+                                          tx.getRiskLevel() + " risk: " + tx.getFlagReason());
+                    }
                 }
                 catch (const std::exception& e)
                 {
@@ -190,24 +272,37 @@ int main()
                 break;
             }
 
-            case 5: // Check Balance
+            case 7: // Transfer Money
             {
-                UI::printSectionHeader("CHECK BALANCE INQUIRY");
-                int accNum = UI::getInt("Enter Account Number : ", 1000);
+                UI::printSectionHeader("TRANSFER MONEY BETWEEN ACCOUNTS");
+                int senderAcc = UI::getInt("Enter Source (Sender) Account Number      : ");
+                int receiverAcc = UI::getInt("Enter Destination (Receiver) Account Number: ");
 
                 try
                 {
-                    Account* account = bank.findAccount(accNum);
+                    Account* sender = bank.findAccount(senderAcc);
+                    Account* receiver = bank.findAccount(receiverAcc);
 
-                    std::cout << "\n" << UI::Color::BOLD_CYAN;
-                    std::cout << "+-------------------------------------------------------------+\n";
-                    std::cout << "|                      BALANCE INQUIRY                        |\n";
-                    std::cout << "+------------------------------+------------------------------+\n";
-                    std::cout << "| Account Number               | " << UI::Color::BOLD_WHITE << std::left << std::setw(28) << account->getAccountNumber() << UI::Color::CYAN << "|\n";
-                    std::cout << "| Account Holder               | " << UI::Color::BOLD_WHITE << std::left << std::setw(28) << account->getName() << UI::Color::CYAN << "|\n";
-                    std::cout << "| Account Type                 | " << UI::Color::YELLOW << std::left << std::setw(28) << account->getAccountType() << UI::Color::CYAN << "|\n";
-                    std::cout << "| Available Balance            | " << UI::Color::BOLD_GREEN << std::left << std::setw(28) << UI::formatCurrency(account->getBalance()) << UI::Color::CYAN << "|\n";
-                    std::cout << "+-------------------------------------------------------------+\n" << UI::Color::RESET;
+                    std::cout << "Sender   : " << UI::Color::BOLD_WHITE << sender->getName() 
+                              << " (Acc #" << senderAcc << ")" << UI::Color::RESET 
+                              << " | Balance: " << UI::Color::BOLD_GREEN << UI::formatCurrency(sender->getBalance()) << UI::Color::RESET << "\n";
+                    std::cout << "Receiver : " << UI::Color::BOLD_WHITE << receiver->getName() 
+                              << " (Acc #" << receiverAcc << ")" << UI::Color::RESET << "\n";
+
+                    double amount = UI::getDouble("Enter Amount to Transfer (Rs.)            : ", 0.01);
+                    std::string note = UI::getString("Enter Transfer Description / Purpose     : ");
+
+                    Transaction tx = bank.transfer(senderAcc, receiverAcc, amount, note);
+                    UI::printSuccess("Transfer successfully completed!");
+                    UI::printTransferReceipt(tx.getTransactionId(), senderAcc, sender->getName(), 
+                                             receiverAcc, receiver->getName(), amount, 
+                                             sender->getBalance(), tx.getRiskLevel());
+
+                    if (tx.getRiskLevel() != "LOW")
+                    {
+                        UI::printWarning("SECURITY ALERT: This transfer was flagged as " + 
+                                          tx.getRiskLevel() + " risk: " + tx.getFlagReason());
+                    }
                 }
                 catch (const std::exception& e)
                 {
@@ -217,15 +312,28 @@ int main()
                 break;
             }
 
-            case 6: // Display Account Details
+            case 8: // Fast Account Inquiry
             {
-                UI::printSectionHeader("DISPLAY ACCOUNT DETAILS");
-                int accNum = UI::getInt("Enter Account Number : ", 1000);
+                UI::printSectionHeader("FAST ACCOUNT INQUIRY & PASSBOOK LOOKUP");
+                std::cout << "[1] Search by Account Number\n[2] Search by Holder Name\n";
+                int sub = UI::getInt("Enter choice (1-2): ", 1, 2);
 
                 try
                 {
-                    Account* account = bank.findAccount(accNum);
-                    account->display();
+                    Account* acc = nullptr;
+                    if (sub == 1)
+                    {
+                        int accNum = UI::getInt("Enter Account Number: ");
+                        acc = bank.findAccount(accNum);
+                    }
+                    else
+                    {
+                        std::string name = UI::getString("Enter Account Holder Name: ");
+                        acc = bank.findAccount(name);
+                    }
+
+                    acc->display();
+                    acc->calculateInterest();
                 }
                 catch (const std::exception& e)
                 {
@@ -235,25 +343,46 @@ int main()
                 break;
             }
 
-            case 7: // Display All Accounts
+            case 9: // View All Accounts Directory
             {
-                UI::printSectionHeader("DIRECTORY OF ALL BANK ACCOUNTS");
+                UI::printSectionHeader("REGISTERED BANK ACCOUNTS DIRECTORY");
                 bank.displayAllAccounts();
                 UI::pauseScreen();
                 break;
             }
 
-            case 8: // Calculate Interest (Polymorphism in action)
+            case 10: // Transaction History
             {
-                UI::printSectionHeader("CALCULATE & PROJECT INTEREST");
-                int accNum = UI::getInt("Enter Account Number : ", 1000);
+                UI::printSectionHeader("TRANSACTION HISTORY & AUDIT LEDGER");
+                std::cout << "[1] View Global Bank Transaction History\n[2] View Specific Account History\n";
+                int sub = UI::getInt("Enter choice (1-2): ", 1, 2);
+
+                if (sub == 1)
+                {
+                    bank.displayTransactionHistory(0);
+                }
+                else
+                {
+                    int accNum = UI::getInt("Enter Account Number: ");
+                    bank.displayTransactionHistory(accNum);
+                }
+                UI::pauseScreen();
+                break;
+            }
+
+            case 11: // Statement Export
+            {
+                UI::printSectionHeader("ACCOUNT FINANCIAL STATEMENT (FRIEND CLASS AUDIT)");
+                int accNum = UI::getInt("Enter Account Number for Official Statement: ");
 
                 try
                 {
-                    Account* account = bank.findAccount(accNum);
-                    // OOP Concept: Runtime Polymorphism
-                    // calculateInterest() dynamically executes SavingsAccount or CurrentAccount method
-                    account->calculateInterest();
+                    bank.printAccountStatement(accNum);
+                    std::string exportedPath = bank.exportAccountStatement(accNum);
+                    if (!exportedPath.empty())
+                    {
+                        UI::printSuccess("Official Statement exported to file: " + exportedPath);
+                    }
                 }
                 catch (const std::exception& e)
                 {
@@ -263,51 +392,70 @@ int main()
                 break;
             }
 
-            case 9: // Save Accounts to File
+            case 12: // Security Center & Fraud Monitor
             {
-                UI::printSectionHeader("EXPORT DATABASE TO FILE");
-                bank.saveAccounts();
+                UI::printSectionHeader("SMARTBANK TRANSACTION SECURITY CENTER & FRAUD MONITOR");
+                std::cout << "Protection Mode: " << UI::Color::BOLD_GREEN << "ACTIVE (Rule-Based Anomaly Engine Online)" << UI::Color::RESET << "\n";
+                std::cout << "Rules Monitored:\n";
+                std::cout << "  1. Large Transaction Threshold : " << UI::formatCurrency(bank.getFraudDetector().getConfig().largeTransactionThreshold) << "\n";
+                std::cout << "  2. Daily Cumulative Debit Limit: " << UI::formatCurrency(bank.getFraudDetector().getConfig().dailyDebitLimit) << "\n";
+                std::cout << "  3. Rapid Velocity Alert        : " << bank.getFraudDetector().getConfig().rapidMaxCount << " txns within " 
+                          << bank.getFraudDetector().getConfig().rapidWindowMinutes << " mins\n\n";
+
+                bank.displaySecurityAlerts();
+
+                if (bank.getFraudDetector().getPendingReviewCount() > 0)
+                {
+                    std::string opt = UI::getString("\nWould you like to review/approve an alert? (yes/no): ");
+                    if (opt == "yes" || opt == "y")
+                    {
+                        int alertId = UI::getInt("Enter Alert ID to update: ");
+                        std::cout << "[1] APPROVED\n[2] REVIEWED\n[3] REJECTED\n";
+                        int st = UI::getInt("Select new status (1-3): ", 1, 3);
+                        std::string statStr = (st == 1) ? "APPROVED" : ((st == 2) ? "REVIEWED" : "REJECTED");
+                        bank.reviewSecurityAlert(alertId, statStr);
+                        UI::printSuccess("Alert #" + std::to_string(alertId) + " status updated to " + statStr);
+                    }
+                }
                 UI::pauseScreen();
                 break;
             }
 
-            case 10: // Launch Web Platform in Browser
+            case 13: // Save & Persist
             {
-                UI::printSectionHeader("LAUNCH WEB PLATFORM");
-                UI::printInfo("Opening interactive web platform in your default browser...");
+                UI::printSectionHeader("PERSIST DATABASE RECORDS");
+                bank.saveData();
+                UI::printSuccess("All customer accounts, transaction ledgers, and security alerts saved to 'data/' folder!");
+                UI::pauseScreen();
+                break;
+            }
+
+            case 14: // Launch Web Platform
+            {
+                UI::printSectionHeader("LAUNCH SMARTBANK FINTECH WEB PLATFORM");
+                UI::printInfo("Opening SmartBank Web Platform in default browser...");
 #ifdef _WIN32
-                system("start docs\\index.html");
+                system("start \"\" \"docs\\index.html\"");
 #elif __APPLE__
                 system("open docs/index.html");
 #else
                 system("xdg-open docs/index.html > /dev/null 2>&1 &");
 #endif
-                UI::printSuccess("Interactive web platform opened successfully!");
                 UI::pauseScreen();
                 break;
             }
 
-            case 11: // Exit
+            case 15: // Exit
             {
-                UI::clearScreen();
-                std::cout << UI::Color::BOLD_CYAN;
-                std::cout << "======================================================================\n";
-                std::cout << "          THANK YOU FOR USING BANK ACCOUNT MANAGEMENT SYSTEM          \n";
-                std::cout << "======================================================================\n" << UI::Color::RESET;
-                std::cout << UI::Color::GREEN << "All active records have been safely finalized in memory.\n";
-                std::cout << "Goodbye and have a productive day!\n\n" << UI::Color::RESET;
-                break;
-            }
-
-            default:
-            {
-                UI::printError("Invalid selection. Please choose an option between 1 and 11.");
-                UI::pauseScreen();
+                UI::printSectionHeader("SAFE APPLICATION SHUTDOWN");
+                bank.saveData();
+                UI::printSuccess("SmartBank state successfully synchronized with disk storage.");
+                UI::printInfo("Thank you for using SmartBank Management System.");
                 break;
             }
         }
 
-    } while (choice != 11);
+    } while (choice != 15);
 
     return 0;
 }

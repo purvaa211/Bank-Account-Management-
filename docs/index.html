@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bank Account Management</title>
+  <title>SmartBank - Smart Banking &amp; Transaction Security Management System</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -15,151 +15,887 @@
   <div id="splashScreen" class="splash-screen">
     <div class="splash-content">
       <div class="logo-wrapper">
-        <img src="logo.png" alt="Bank Logo" class="splash-logo rotating-logo">
+        <img src="logo.png" alt="SmartBank Logo" class="splash-logo rotating-logo">
       </div>
-      <h2 class="splash-title">Bank Account Management</h2>
-      <p class="splash-subtitle">Loading Banking Portal...</p>
+      <h2 class="splash-title">SmartBank</h2>
+      <p class="splash-subtitle">Smart Banking &amp; Transaction Security System</p>
+      <div class="splash-loader-bar"><div class="splash-loader-fill"></div></div>
     </div>
   </div>
 
-  <!-- Top Navigation Header -->
-  <header class="navbar">
-    <div class="nav-container">
-      <div class="brand">
-        <img src="logo.png" alt="Bank Logo" class="brand-logo">
-        <h1 class="brand-title">Bank Account Management</h1>
-      </div>
-      <div class="header-status">
-        <span class="status-indicator"></span>
-        <span class="status-text">System Active</span>
-      </div>
-    </div>
-  </header>
+  <!-- Main App Layout -->
+  <div class="app-container">
 
-  <!-- Metrics Overview Bar -->
-  <section class="metrics-bar">
-    <div class="metrics-container">
-      <div class="metric-card">
-        <span class="metric-label">Active Bank Accounts</span>
-        <span class="metric-value" id="statAccountCount">0</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Total Deposits Under Management</span>
-        <span class="metric-value" id="statTotalBalance">₹0.00</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Savings Accounts (4% Interest)</span>
-        <span class="metric-value" id="statSavingsCount">0</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Current Accounts (0% Interest)</span>
-        <span class="metric-value" id="statCurrentCount">0</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Content Layout -->
-  <main class="main-content">
-    <div class="simulator-layout">
-
-      <!-- Left Column: Vertical Operations List & Active Form -->
-      <div class="operations-column">
-        <div class="card">
-          <div class="card-header">
-            <h2>Banking Operations</h2>
-            <span class="card-subtitle">Choose an operation from the list below</span>
-          </div>
-
-          <!-- Vertical Format Operations List -->
-          <div class="vertical-action-list">
-            <button class="action-btn active" data-action="create-savings">
-              <span class="btn-title">Create Savings Account</span>
-              <span class="btn-desc">Earns 4.0% annual interest rate</span>
-            </button>
-            <button class="action-btn" data-action="create-current">
-              <span class="btn-title">Create Current Account</span>
-              <span class="btn-desc">Commercial checking with 0% interest</span>
-            </button>
-            <button class="action-btn" data-action="deposit">
-              <span class="btn-title">Deposit Funds</span>
-              <span class="btn-desc">Credit amount to account balance</span>
-            </button>
-            <button class="action-btn" data-action="withdraw">
-              <span class="btn-title">Withdraw Funds</span>
-              <span class="btn-desc">Debit amount from account balance</span>
-            </button>
-            <button class="action-btn" data-action="balance-inquiry">
-              <span class="btn-title">Check Balance</span>
-              <span class="btn-desc">View balance and passbook summary</span>
-            </button>
-            <button class="action-btn" data-action="calculate-interest">
-              <span class="btn-title">Calculate Interest</span>
-              <span class="btn-desc">Simulate annual interest projection</span>
-            </button>
-          </div>
-
-          <!-- Operation Form Section -->
-          <div class="form-container" id="actionFormContainer">
-            <!-- Form injected dynamically via app.js -->
-          </div>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <img src="logo.png" alt="SmartBank Logo" class="brand-logo">
+        <div class="brand-text">
+          <span class="brand-name">SmartBank</span>
+          <span class="brand-tag">Security &amp; Core Banking</span>
         </div>
       </div>
 
-      <!-- Right Column: Transaction Audit Receipt -->
-      <div class="receipt-column">
-        <div class="card receipt-card">
-          <div class="card-header">
-            <h2>Transaction Audit Receipt</h2>
-            <span class="card-subtitle">Instant receipt generated for banking operations</span>
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+
+        <a href="#accounts" class="nav-item" data-page="accounts">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </span>
+          <span class="nav-label">Accounts</span>
+        </a>
+
+        <a href="#transactions" class="nav-item" data-page="transactions">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          </span>
+          <span class="nav-label">Transactions</span>
+        </a>
+
+        <a href="#security" class="nav-item" data-page="security">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </span>
+          <span class="nav-label">Security Center</span>
+          <span class="nav-badge" id="sidebarAlertBadge" style="display:none;">0</span>
+        </a>
+
+        <a href="#statements" class="nav-item" data-page="statements">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </span>
+          <span class="nav-label">Statements</span>
+        </a>
+
+        <a href="#settings" class="nav-item" data-page="settings">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </span>
+          <span class="nav-label">Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="security-chip">
+          <span class="pulse-dot"></span>
+          <div class="security-chip-text">
+            <span class="chip-title">Security Engine</span>
+            <span class="chip-sub">Rule Monitor Active</span>
           </div>
-          <div class="card-body" id="receiptContainer">
-            <div class="receipt-placeholder">
-              Select an operation on the left and submit to generate an audit receipt card.
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+
+      <!-- Top Header Navigation -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <div class="page-title-box">
+            <h1 class="page-title" id="pageTitleHeading">Dashboard</h1>
+            <span class="page-subtitle" id="pageSubtitleHeading">Financial metrics, transaction flow &amp; live security monitoring</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Global Search Box -->
+          <div class="search-box">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="globalSearchInput" placeholder="Quick search account # or Txn ID...">
+          </div>
+
+          <!-- Notification Bell -->
+          <button class="topbar-btn" id="notifBellBtn" title="Security Alerts">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span class="badge-dot" id="headerAlertBadge" style="display:none;"></span>
+          </button>
+
+          <!-- User Profile Tag -->
+          <div class="user-profile">
+            <div class="avatar">PD</div>
+            <div class="user-info">
+              <span class="user-name">Purva Deshmukh</span>
+              <span class="user-role">Bank Administrator</span>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-    </div>
+      <!-- Main Dynamic Content Container -->
+      <main class="content-body">
 
-    <!-- Bottom Section: Secure Account Inquiry & Passbook -->
-    <div class="directory-section">
-      <div class="card table-card">
-        <div class="card-header flex-header">
-          <div>
-            <h2>Secure Account Inquiry &amp; Passbook</h2>
-            <span class="card-subtitle">Enter an Account Number or Holder Name to access individual account details</span>
-          </div>
-          <div class="table-actions">
-            <button class="btn btn-secondary btn-sm" id="btnSeedDemo">Load Sample Accounts</button>
-            <button class="btn btn-secondary btn-sm" id="btnClearBank">Clear All</button>
-          </div>
-        </div>
-        <div class="card-body">
-          <form id="searchAccountForm" class="search-form-row">
-            <input type="text" class="form-control" id="searchAccountInput" placeholder="Enter Account Number (e.g. 1001) or Account Holder Name" required>
-            <button type="submit" class="btn btn-primary">Search Account</button>
-          </form>
-
-          <div id="searchResultContainer" class="search-result-area">
-            <div class="privacy-notice">
-              For privacy and security, account details and balances are not displayed publicly. Enter an Account Number or Holder Name above to securely view balance and savings details.
+        <!-- ================= PAGE: DASHBOARD ================= -->
+        <section class="page-section active" id="page-dashboard">
+          
+          <!-- Welcome & Date Bar -->
+          <div class="dashboard-hero">
+            <div class="hero-left">
+              <h2>Welcome to SmartBank Management Portal</h2>
+              <p id="liveDateDisplay">Financial System Operational</p>
+            </div>
+            <div class="hero-actions">
+              <button class="btn btn-primary" onclick="navigateTo('accounts', 'create')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                New Account
+              </button>
+              <button class="btn btn-secondary" onclick="navigateTo('transactions', 'transfer')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                Transfer Funds
+              </button>
+              <button class="btn btn-secondary" onclick="navigateTo('security')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Security Audit
+              </button>
             </div>
           </div>
+
+          <!-- Key Metrics Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-blue-subtle text-blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Total Active Accounts</span>
+                <span class="stat-value" id="statAccountsCount">0</span>
+                <span class="stat-meta text-muted">Across 3 account types</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-green-subtle text-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Total Deposits in Vault</span>
+                <span class="stat-value text-green" id="statTotalDeposits">₹0.00</span>
+                <span class="stat-meta text-muted">Total active bank balance</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-purple-subtle text-purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Total Transactions</span>
+                <span class="stat-value" id="statTransactionsCount">0</span>
+                <span class="stat-meta text-muted" id="statWithdrawalsSub">Withdrawals: ₹0.00</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-red-subtle text-red">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Flagged Security Alerts</span>
+                <span class="stat-value text-red" id="statAlertsCount">0</span>
+                <span class="stat-meta text-muted" id="statHighRiskSub">0 High Risk</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Section -->
+          <div class="charts-grid">
+            <div class="card chart-card">
+              <div class="card-header flex-header">
+                <div>
+                  <h3>Cash Flow Volume Comparison</h3>
+                  <span class="card-subtitle">Inflows (Deposits) vs Outflows (Withdrawals &amp; Transfers)</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="canvas-container">
+                  <canvas id="cashFlowChart" height="220"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="card chart-card">
+              <div class="card-header flex-header">
+                <div>
+                  <h3>Portfolio Breakdown by Account Type</h3>
+                  <span class="card-subtitle">Savings vs Current vs Fixed Deposit distribution</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="canvas-container">
+                  <canvas id="accountTypeChart" height="220"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security Overview Banner -->
+          <div class="security-overview-card">
+            <div class="sec-left">
+              <div class="sec-badge">RULE-BASED SECURITY ENGINE</div>
+              <h3>Transaction Risk &amp; Anomaly Monitoring Status</h3>
+              <p>Continuous rule-based surveillance active: Large Transaction Threshold (₹50k), Daily Limit (₹100k), and Velocity burst monitoring.</p>
+            </div>
+            <div class="sec-stats">
+              <div class="sec-stat-box low">
+                <span class="sec-val" id="dashLowRiskCount">0</span>
+                <span class="sec-lbl">LOW RISK (Normal)</span>
+              </div>
+              <div class="sec-stat-box medium">
+                <span class="sec-val" id="dashMedRiskCount">0</span>
+                <span class="sec-lbl">MEDIUM RISK</span>
+              </div>
+              <div class="sec-stat-box high">
+                <span class="sec-val" id="dashHighRiskCount">0</span>
+                <span class="sec-lbl">HIGH RISK</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Transactions Preview -->
+          <div class="card">
+            <div class="card-header flex-header">
+              <div>
+                <h3>Recent Transactions Ledger</h3>
+                <span class="card-subtitle">Latest operations evaluated and recorded in core registry</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="navigateTo('transactions')">View All Transactions</button>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Txn ID</th>
+                    <th>Date &amp; Time</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Risk Level</th>
+                  </tr>
+                </thead>
+                <tbody id="dashRecentTxnBody">
+                  <tr><td colspan="8" class="text-center text-muted">No transactions recorded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================= PAGE: ACCOUNTS ================= -->
+        <section class="page-section" id="page-accounts">
+          
+          <div class="section-toolbar">
+            <div class="toolbar-search">
+              <input type="text" id="accountSearchInput" class="form-control" placeholder="Search accounts by name or account number...">
+              <select id="accountTypeFilter" class="form-control filter-select">
+                <option value="ALL">All Account Types</option>
+                <option value="Savings Account">Savings Accounts</option>
+                <option value="Current Account">Current Accounts</option>
+                <option value="Fixed Deposit">Fixed Deposits</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btnOpenCreateAccountModal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Create New Account
+            </button>
+          </div>
+
+          <!-- Accounts Directory Table -->
+          <div class="card">
+            <div class="card-header flex-header">
+              <div>
+                <h3>Registered Banking Accounts</h3>
+                <span class="card-subtitle">Encapsulated account records with specialized interest and withdrawal rules</span>
+              </div>
+              <span class="badge badge-neutral" id="accountCountBadge">0 Accounts</span>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Account #</th>
+                    <th>Account Holder</th>
+                    <th>Account Type</th>
+                    <th>Features / Limits</th>
+                    <th>Current Balance</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="accountsTableBody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================= PAGE: TRANSACTIONS ================= -->
+        <section class="page-section" id="page-transactions">
+          
+          <div class="grid-layout-2col">
+            
+            <!-- Left: Operations Forms Container -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Banking Operations Form</h3>
+                <span class="card-subtitle">Perform deposits, withdrawals, or atomic fund transfers</span>
+              </div>
+              
+              <!-- Operation Tabs -->
+              <div class="tabs-nav">
+                <button class="tab-btn active" data-tx-tab="deposit">Deposit Funds</button>
+                <button class="tab-btn" data-tx-tab="withdraw">Withdraw Funds</button>
+                <button class="tab-btn" data-tx-tab="transfer">Transfer Money</button>
+              </div>
+
+              <div class="card-body">
+
+                <!-- DEPOSIT FORM -->
+                <form id="depositForm" class="tx-form active">
+                  <div class="form-group">
+                    <label>Destination Account Number <span class="required">*</span></label>
+                    <input type="number" id="depAccountNum" class="form-control" placeholder="Enter account # (e.g. 1001)" required>
+                    <span class="account-peek" id="depAccountPeek"></span>
+                  </div>
+                  <div class="form-group">
+                    <label>Deposit Amount (₹) <span class="required">*</span></label>
+                    <input type="number" step="0.01" min="1" id="depAmount" class="form-control" placeholder="0.00" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Narration / Description</label>
+                    <input type="text" id="depNote" class="form-control" placeholder="e.g. Salary credit, Cash deposit">
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block">Process Deposit</button>
+                </form>
+
+                <!-- WITHDRAWAL FORM -->
+                <form id="withdrawForm" class="tx-form">
+                  <div class="form-group">
+                    <label>Source Account Number <span class="required">*</span></label>
+                    <input type="number" id="withAccountNum" class="form-control" placeholder="Enter account # (e.g. 1001)" required>
+                    <span class="account-peek" id="withAccountPeek"></span>
+                  </div>
+                  <div class="form-group">
+                    <label>Withdrawal Amount (₹) <span class="required">*</span></label>
+                    <input type="number" step="0.01" min="1" id="withAmount" class="form-control" placeholder="0.00" required>
+                    <span class="form-hint">Savings requires ₹1,000 min balance. Current accounts support approved overdraft.</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Reason / Note</label>
+                    <input type="text" id="withNote" class="form-control" placeholder="e.g. ATM cash withdrawal">
+                  </div>
+                  <button type="submit" class="btn btn-danger btn-block">Process Withdrawal</button>
+                </form>
+
+                <!-- TRANSFER FORM -->
+                <form id="transferForm" class="tx-form">
+                  <div class="form-group">
+                    <label>Source (Sender) Account # <span class="required">*</span></label>
+                    <input type="number" id="trSenderNum" class="form-control" placeholder="Sender account # (e.g. 1001)" required>
+                    <span class="account-peek" id="trSenderPeek"></span>
+                  </div>
+                  <div class="form-group">
+                    <label>Destination (Receiver) Account # <span class="required">*</span></label>
+                    <input type="number" id="trReceiverNum" class="form-control" placeholder="Receiver account # (e.g. 1002)" required>
+                    <span class="account-peek" id="trReceiverPeek"></span>
+                  </div>
+                  <div class="form-group">
+                    <label>Transfer Amount (₹) <span class="required">*</span></label>
+                    <input type="number" step="0.01" min="1" id="trAmount" class="form-control" placeholder="0.00" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Transfer Narration / Purpose</label>
+                    <input type="text" id="trNote" class="form-control" placeholder="e.g. Invoice settlement, Fund transfer">
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block">Execute Atomic Transfer</button>
+                </form>
+
+              </div>
+            </div>
+
+            <!-- Right: Real-time Transaction Receipt Card -->
+            <div class="card receipt-card">
+              <div class="card-header flex-header">
+                <div>
+                  <h3>Transaction Audit Receipt</h3>
+                  <span class="card-subtitle">Real-time ledger voucher and security evaluation stamp</span>
+                </div>
+              </div>
+              <div class="card-body" id="receiptOutputContainer">
+                <div class="empty-state">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                  <h4>No Active Receipt</h4>
+                  <p>Execute an operation on the left to generate an instant audit receipt.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Transaction History Section with Search & Filters -->
+          <div class="card mt-4">
+            <div class="card-header flex-header">
+              <div>
+                <h3>Transaction History &amp; Audit Log</h3>
+                <span class="card-subtitle">Complete chronological record of all banking events with risk tagging</span>
+              </div>
+              <div class="toolbar-search">
+                <input type="text" id="txHistorySearch" class="form-control" placeholder="Search by Txn ID or Acc #...">
+                <select id="txTypeFilter" class="form-control filter-select">
+                  <option value="ALL">All Types</option>
+                  <option value="DEPOSIT">Deposits</option>
+                  <option value="WITHDRAWAL">Withdrawals</option>
+                  <option value="TRANSFER">Transfers</option>
+                </select>
+                <select id="txRiskFilter" class="form-control filter-select">
+                  <option value="ALL">All Risk Levels</option>
+                  <option value="LOW">Low Risk</option>
+                  <option value="MEDIUM">Medium Risk</option>
+                  <option value="HIGH">High Risk</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Txn ID</th>
+                    <th>Timestamp</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Risk Category</th>
+                    <th>Narration</th>
+                  </tr>
+                </thead>
+                <tbody id="transactionHistoryTableBody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================= PAGE: SECURITY CENTER ================= -->
+        <section class="page-section" id="page-security">
+          
+          <!-- Security Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-red-subtle text-red">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Total Flagged Events</span>
+                <span class="stat-value text-red" id="secTotalAlerts">0</span>
+                <span class="stat-meta text-muted">Audited by rule engine</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-red-subtle text-red">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">High-Risk Alerts</span>
+                <span class="stat-value text-red" id="secHighRiskCount">0</span>
+                <span class="stat-meta text-muted">Critical thresholds breached</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-amber-subtle text-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Medium-Risk Alerts</span>
+                <span class="stat-value text-amber" id="secMedRiskCount">0</span>
+                <span class="stat-meta text-muted">Advisory review events</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-green-subtle text-green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Reviewed &amp; Approved</span>
+                <span class="stat-value text-green" id="secApprovedCount">0</span>
+                <span class="stat-meta text-muted">Cleared by administrator</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Security Rules Card -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h3>Rule-Based Anomaly Detection Configuration</h3>
+              <span class="card-subtitle">Active financial risk policies monitored across all accounts</span>
+            </div>
+            <div class="card-body">
+              <div class="rules-grid">
+                <div class="rule-box">
+                  <div class="rule-header">
+                    <span class="rule-tag tag-high">Rule 1</span>
+                    <h4>Large Transaction Alert</h4>
+                  </div>
+                  <p>Transactions exceeding configured threshold are flagged for immediate supervisory review.</p>
+                  <div class="rule-meta">Threshold: <strong id="cfgRuleLargeTx">₹50,000.00</strong></div>
+                </div>
+
+                <div class="rule-box">
+                  <div class="rule-header">
+                    <span class="rule-tag tag-high">Rule 2</span>
+                    <h4>Daily Cumulative Debit Limit</h4>
+                  </div>
+                  <p>Monitors cumulative daily withdrawals &amp; outgoing transfers per account to prevent account drain.</p>
+                  <div class="rule-meta">Daily Limit: <strong id="cfgRuleDaily">₹1,00,000.00</strong></div>
+                </div>
+
+                <div class="rule-box">
+                  <div class="rule-header">
+                    <span class="rule-tag tag-medium">Rule 3</span>
+                    <h4>Rapid Transaction Velocity</h4>
+                  </div>
+                  <p>Detects multiple rapid consecutive transactions within a narrow time window.</p>
+                  <div class="rule-meta">Velocity Rule: <strong id="cfgRuleVelocity">3 transactions in 2 mins</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Security Alerts Table -->
+          <div class="card">
+            <div class="card-header flex-header">
+              <div>
+                <h3>Security Events &amp; Anomaly Alerts Log</h3>
+                <span class="card-subtitle">All transactions flagged by rule-based monitoring with administrative review actions</span>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Alert ID</th>
+                    <th>Txn ID</th>
+                    <th>Account #</th>
+                    <th>Amount</th>
+                    <th>Risk Category</th>
+                    <th>Flag Reason</th>
+                    <th>Timestamp</th>
+                    <th>Review Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="securityAlertsTableBody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================= PAGE: STATEMENTS ================= -->
+        <section class="page-section" id="page-statements">
+          
+          <div class="statement-search-toolbar">
+            <div class="form-group mb-0">
+              <label>Select Account for Statement Generation</label>
+              <div class="d-flex gap-2">
+                <input type="number" id="stmtAccountInput" class="form-control" placeholder="Enter Account # (e.g. 1001)">
+                <button class="btn btn-primary" id="btnGenerateStatement">Generate Statement</button>
+                <button class="btn btn-secondary" id="btnPrintStatement" onclick="window.print()">Print / Export PDF</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Printable Official Bank Statement Document -->
+          <div class="statement-document card" id="statementDocumentContainer">
+            <div class="statement-header">
+              <div class="stmt-brand">
+                <img src="logo.png" alt="SmartBank Logo" class="brand-logo">
+                <div>
+                  <h2>SmartBank Financial Corporation</h2>
+                  <p>Core Banking &amp; Financial Security Division | Official Account Statement</p>
+                </div>
+              </div>
+              <div class="stmt-meta text-right">
+                <span class="stmt-date" id="stmtCurrentDate">Date: 2026-11-12</span>
+                <span class="stmt-badge">CERTIFIED COPY</span>
+              </div>
+            </div>
+
+            <div class="statement-account-info" id="stmtAccountDetailsBox">
+              <div class="info-cell">
+                <span class="lbl">Account Holder</span>
+                <span class="val" id="stmtHolderName">Purva Deshmukh</span>
+              </div>
+              <div class="info-cell">
+                <span class="lbl">Account Number</span>
+                <span class="val" id="stmtAccountNum">1001</span>
+              </div>
+              <div class="info-cell">
+                <span class="lbl">Account Type</span>
+                <span class="val" id="stmtAccountType">Savings Account</span>
+              </div>
+              <div class="info-cell">
+                <span class="lbl">Current Balance</span>
+                <span class="val text-green" id="stmtClosingBalance">₹0.00</span>
+              </div>
+            </div>
+
+            <div class="statement-ledger">
+              <h4>Transaction History Ledger</h4>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date &amp; Time</th>
+                    <th>Transaction ID</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody id="stmtLedgerBody">
+                  <tr><td colspan="6" class="text-center text-muted">Enter an account number above to view statement records.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="statement-footer">
+              <p>This is a computer-generated bank statement from SmartBank Core Banking System. Demonstrates OOP Friend Class pattern with privileged account access.</p>
+              <p class="stmt-sign">Authorized System Controller: Purva Deshmukh</p>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================= PAGE: SETTINGS ================= -->
+        <section class="page-section" id="page-settings">
+          
+          <div class="grid-layout-2col">
+            
+            <!-- Security Rules Settings -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Security Threshold Settings</h3>
+                <span class="card-subtitle">Tune the rule-based fraud detection engine thresholds</span>
+              </div>
+              <div class="card-body">
+                <form id="settingsRulesForm">
+                  <div class="form-group">
+                    <label>Large Transaction Alert Threshold (₹)</label>
+                    <input type="number" id="setLargeThreshold" class="form-control" value="50000" min="1000">
+                    <span class="form-hint">Transactions >= this value trigger MEDIUM risk. >= 2x triggers HIGH risk.</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Daily Cumulative Debit Limit (₹)</label>
+                    <input type="number" id="setDailyLimit" class="form-control" value="100000" min="5000">
+                    <span class="form-hint">Alerts when daily outgoing debits exceed this volume.</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Velocity Burst Transaction Count</label>
+                    <input type="number" id="setVelocityCount" class="form-control" value="3" min="2" max="10">
+                    <span class="form-hint">Number of transactions within 2 minutes before triggering alert.</span>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Save Security Rules</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Persistence & Storage Management -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Storage &amp; Data Management</h3>
+                <span class="card-subtitle">Manage client-side persistent banking database</span>
+              </div>
+              <div class="card-body">
+                <div class="storage-info-box">
+                  <div class="d-flex justify-between align-center mb-2">
+                    <span class="font-600">Storage Engine:</span>
+                    <span class="badge badge-success">LocalStorage Active</span>
+                  </div>
+                  <p class="text-sm text-secondary mb-3">All accounts, transactions, and security alerts automatically persist across application restarts and page refreshes.</p>
+                </div>
+
+                <div class="settings-actions-list">
+                  <button class="btn btn-secondary btn-block" id="btnExportJSON">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export Banking Database (JSON)
+                  </button>
+                  <button class="btn btn-secondary btn-block" id="btnResetDemoData">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    Reload Default Demo Accounts
+                  </button>
+                  <button class="btn btn-danger btn-block" id="btnClearAllData">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    Wipe Database (Clear All)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <div class="footer-left">
+          <span>SmartBank Management System &bull; Course Project: Object-Oriented Programming in C++</span>
+        </div>
+        <div class="footer-right">
+          <span>Author: Purva Deshmukh</span>
+        </div>
+      </footer>
+
+    </div>
+
+  </div>
+
+  <!-- ================= MODAL: CREATE ACCOUNT ================= -->
+  <div class="modal-overlay" id="createAccountModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3>Create New Bank Account</h3>
+          <span class="modal-subtitle">Select account specialization and enter customer details</span>
+        </div>
+        <button class="modal-close" id="btnCloseCreateModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Account Type Selector Tabs -->
+        <div class="modal-type-tabs">
+          <button class="modal-type-btn active" data-type="savings">
+            <span class="title">Savings Account</span>
+            <span class="desc">4.0% Interest | ₹1,000 Min Bal</span>
+          </button>
+          <button class="modal-type-btn" data-type="current">
+            <span class="title">Current Account</span>
+            <span class="desc">0.0% Interest | Overdraft</span>
+          </button>
+          <button class="modal-type-btn" data-type="fd">
+            <span class="title">Fixed Deposit</span>
+            <span class="desc">Up to 7.5% | Term Lock-in</span>
+          </button>
+        </div>
+
+        <form id="createAccountForm">
+          <div class="form-group">
+            <label>Customer Full Name <span class="required">*</span></label>
+            <input type="text" id="caName" class="form-control" placeholder="e.g. Purva Deshmukh" required>
+          </div>
+
+          <div class="form-group">
+            <label>Initial Opening Balance (₹) <span class="required">*</span></label>
+            <input type="number" step="0.01" id="caBalance" class="form-control" placeholder="1000.00" value="1000" min="1000" required>
+            <span class="form-hint" id="caBalanceHint">Savings accounts require a minimum balance of ₹1,000.</span>
+          </div>
+
+          <!-- Dynamic Field: Current Account Overdraft -->
+          <div class="form-group" id="caOverdraftGroup" style="display:none;">
+            <label>Approved Overdraft Facility Limit (₹)</label>
+            <input type="number" step="0.01" id="caOverdraft" class="form-control" value="25000" min="0">
+            <span class="form-hint">Allows account balance to be negative up to this limit.</span>
+          </div>
+
+          <!-- Dynamic Field: Fixed Deposit Term -->
+          <div class="form-group" id="caFdGroup" style="display:none;">
+            <label>Investment Term Duration</label>
+            <select id="caFdTerm" class="form-control">
+              <option value="6">6 Months (6.5% p.a.)</option>
+              <option value="12" selected>12 Months (7.0% p.a.)</option>
+              <option value="24">24 Months (7.25% p.a.)</option>
+              <option value="36">36 Months (7.5% p.a.)</option>
+            </select>
+            <div class="fd-calc-box mt-2" id="fdMaturityCalcBox">
+              <div class="d-flex justify-between">
+                <span>Calculated Maturity Value:</span>
+                <strong class="text-green" id="fdMaturityValPreview">₹1,071.86</strong>
+              </div>
+              <div class="d-flex justify-between mt-1 text-sm text-secondary">
+                <span>Maturity Date:</span>
+                <span id="fdMaturityDatePreview">2027-11-12</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelCreateModal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Open Account</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ACCOUNT DETAIL PASSBOOK ================= -->
+  <div class="modal-overlay" id="accountDetailModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3>Account Passbook &amp; Financial Details</h3>
+          <span class="modal-subtitle" id="modalAccSubtitle">Account #1001</span>
+        </div>
+        <button class="modal-close" id="btnCloseDetailModal">&times;</button>
+      </div>
+      <div class="modal-body" id="accountDetailModalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: SECURITY CONFIRMATION DIALOG ================= -->
+  <div class="modal-overlay" id="securityConfirmModal">
+    <div class="modal-dialog modal-warning">
+      <div class="modal-header">
+        <div>
+          <h3 class="text-amber">Security Review Advisory</h3>
+          <span class="modal-subtitle">Rule engine triggered for financial transaction</span>
+        </div>
+        <button class="modal-close" id="btnCloseSecConfirmModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="sec-alert-banner" id="secConfirmBanner">
+          <strong id="secConfirmRiskLevel">MEDIUM RISK ALERT</strong>
+          <p id="secConfirmReason">This transaction exceeds standard threshold guidelines.</p>
+        </div>
+        <p class="text-sm text-secondary">As an authorized administrator, please confirm whether to execute this transaction with security tagging, or reject it.</p>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnRejectSecTx">Reject Transaction</button>
+          <button type="button" class="btn btn-primary" id="btnApproveSecTx">Authorize &amp; Execute</button>
         </div>
       </div>
     </div>
+  </div>
 
-  </main>
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-container">
-      <p>Bank Account Management System</p>
-      <p>Author: Purva Deshmukh</p>
-    </div>
-  </footer>
-
+  <!-- Scripts -->
   <script src="app.js"></script>
 </body>
 </html>

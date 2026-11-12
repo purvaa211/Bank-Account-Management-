@@ -15,19 +15,19 @@ namespace UI
 {
     namespace Color
     {
-        const std::string RESET        = "\033[0m";
-        const std::string BOLD         = "\033[1m";
-        const std::string DIM          = "\033[2m";
-        const std::string UNDERLINE    = "\033[4m";
+        const std::string RESET       = "\033[0m";
+        const std::string BOLD        = "\033[1m";
+        const std::string DIM         = "\033[2m";
+        const std::string UNDERLINE   = "\033[4m";
 
-        const std::string RED          = "\033[31m";
-        const std::string GREEN        = "\033[32m";
-        const std::string YELLOW       = "\033[33m";
-        const std::string BLUE         = "\033[34m";
-        const std::string MAGENTA      = "\033[35m";
-        const std::string CYAN         = "\033[36m";
-        const std::string WHITE        = "\033[37m";
-        const std::string GRAY         = "\033[90m";
+        const std::string RED         = "\033[31m";
+        const std::string GREEN       = "\033[32m";
+        const std::string YELLOW      = "\033[33m";
+        const std::string BLUE        = "\033[34m";
+        const std::string MAGENTA     = "\033[35m";
+        const std::string CYAN        = "\033[36m";
+        const std::string WHITE       = "\033[37m";
+        const std::string GRAY        = "\033[90m";
 
         const std::string BOLD_RED     = "\033[1;31m";
         const std::string BOLD_GREEN   = "\033[1;32m";
@@ -40,7 +40,6 @@ namespace UI
     void initTerminal()
     {
 #ifdef _WIN32
-        // Enable UTF-8 console output and ANSI virtual terminal escape sequences
         SetConsoleOutputCP(CP_UTF8);
         HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hOut != INVALID_HANDLE_VALUE)
@@ -57,12 +56,7 @@ namespace UI
 
     void clearScreen()
     {
-#ifdef _WIN32
-        // Using ANSI clear screen with fallback
         std::cout << "\033[2J\033[H";
-#else
-        std::cout << "\033[2J\033[H";
-#endif
     }
 
     void pauseScreen()
@@ -87,8 +81,8 @@ namespace UI
     {
         std::cout << Color::BOLD_CYAN;
         std::cout << "======================================================================\n";
-        std::cout << "                 BANK ACCOUNT MANAGEMENT SYSTEM                       \n";
-        std::cout << "             Object-Oriented Programming in C++ Project               \n";
+        std::cout << "   SMARTBANK - SMART BANKING & TRANSACTION SECURITY SYSTEM            \n";
+        std::cout << "               Object-Oriented Programming in C++                     \n";
         std::cout << "======================================================================\n";
         std::cout << Color::RESET;
     }
@@ -101,13 +95,13 @@ namespace UI
 
     void printSuccess(const std::string& message)
     {
-        std::cout << "\n" << Color::BOLD_GREEN << "[SUCCESS] " << Color::GREEN 
+        std::cout << Color::BOLD_GREEN << "[SUCCESS] " << Color::GREEN 
                   << message << Color::RESET << "\n";
     }
 
     void printError(const std::string& message)
     {
-        std::cout << "\n" << Color::BOLD_RED << "[ERROR] " << Color::RED 
+        std::cout << Color::BOLD_RED << "[ERROR] " << Color::RED 
                   << message << Color::RESET << "\n";
     }
 
@@ -130,11 +124,12 @@ namespace UI
     }
 
     void printReceipt(int accNum, const std::string& holder, const std::string& type, 
-                      const std::string& txType, double prevBal, double amount, double newBal)
+                      const std::string& txType, double prevBal, double amount, double newBal,
+                      const std::string& txId, const std::string& risk)
     {
         std::cout << "\n" << Color::BOLD_CYAN;
         std::cout << "+-------------------------------------------------------------+\n";
-        std::cout << "|                    TRANSACTION RECEIPT                      |\n";
+        std::cout << "|                 SMARTBANK AUDIT RECEIPT                     |\n";
         std::cout << "+------------------------------+------------------------------+\n" << Color::RESET;
 
         auto printRow = [](const std::string& label, const std::string& val, const std::string& valColor = Color::BOLD_WHITE) {
@@ -143,13 +138,43 @@ namespace UI
                       << Color::CYAN << "|\n" << Color::RESET;
         };
 
+        if (!txId.empty()) printRow("Transaction ID", txId, Color::BOLD_YELLOW);
         printRow("Account Number", std::to_string(accNum));
         printRow("Account Holder", holder);
         printRow("Account Type", type);
-        printRow("Transaction Type", txType, (txType == "DEPOSIT" ? Color::BOLD_GREEN : Color::BOLD_YELLOW));
+        printRow("Operation Type", txType, (txType == "DEPOSIT" ? Color::BOLD_GREEN : Color::BOLD_RED));
         printRow("Previous Balance", formatCurrency(prevBal));
         printRow("Transaction Amount", formatCurrency(amount), (txType == "DEPOSIT" ? Color::BOLD_GREEN : Color::BOLD_RED));
         printRow("Updated Balance", formatCurrency(newBal), Color::BOLD_GREEN);
+        printRow("Security Risk Level", risk, (risk == "HIGH" ? Color::BOLD_RED : (risk == "MEDIUM" ? Color::BOLD_YELLOW : Color::BOLD_GREEN)));
+
+        std::cout << Color::BOLD_CYAN;
+        std::cout << "+------------------------------+------------------------------+\n";
+        std::cout << Color::RESET;
+    }
+
+    void printTransferReceipt(const std::string& txId, int senderAcc, const std::string& senderName,
+                              int receiverAcc, const std::string& receiverName,
+                              double amount, double senderNewBal, const std::string& risk)
+    {
+        std::cout << "\n" << Color::BOLD_CYAN;
+        std::cout << "+-------------------------------------------------------------+\n";
+        std::cout << "|             SMARTBANK FUND TRANSFER RECEIPT                 |\n";
+        std::cout << "+------------------------------+------------------------------+\n" << Color::RESET;
+
+        auto printRow = [](const std::string& label, const std::string& val, const std::string& valColor = Color::BOLD_WHITE) {
+            std::cout << Color::CYAN << "| " << Color::WHITE << std::left << std::setw(28) << label 
+                      << Color::CYAN << "| " << valColor << std::left << std::setw(28) << val 
+                      << Color::CYAN << "|\n" << Color::RESET;
+        };
+
+        printRow("Transaction ID", txId, Color::BOLD_YELLOW);
+        printRow("Source Account", "Acc #" + std::to_string(senderAcc) + " (" + senderName + ")");
+        printRow("Destination Account", "Acc #" + std::to_string(receiverAcc) + " (" + receiverName + ")");
+        printRow("Transfer Amount", formatCurrency(amount), Color::BOLD_GREEN);
+        printRow("Sender Remaining Balance", formatCurrency(senderNewBal), Color::BOLD_WHITE);
+        printRow("Transaction Status", "SUCCESS", Color::BOLD_GREEN);
+        printRow("Risk Category", risk, (risk == "HIGH" ? Color::BOLD_RED : (risk == "MEDIUM" ? Color::BOLD_YELLOW : Color::BOLD_GREEN)));
 
         std::cout << Color::BOLD_CYAN;
         std::cout << "+------------------------------+------------------------------+\n";
@@ -159,154 +184,106 @@ namespace UI
     void printInterestCard(int accNum, const std::string& holder, const std::string& type,
                            double ratePercent, double principal, double interest, double projectedBal)
     {
-        std::cout << "\n" << Color::BOLD_MAGENTA;
+        std::cout << "\n" << Color::BOLD_CYAN;
         std::cout << "+-------------------------------------------------------------+\n";
-        std::cout << "|                INTEREST CALCULATION SUMMARY                 |\n";
+        std::cout << "|                 ANNUAL INTEREST PROJECTION                  |\n";
         std::cout << "+------------------------------+------------------------------+\n" << Color::RESET;
 
         auto printRow = [](const std::string& label, const std::string& val, const std::string& valColor = Color::BOLD_WHITE) {
-            std::cout << Color::MAGENTA << "| " << Color::WHITE << std::left << std::setw(28) << label 
-                      << Color::MAGENTA << "| " << valColor << std::left << std::setw(28) << val 
-                      << Color::MAGENTA << "|\n" << Color::RESET;
+            std::cout << Color::CYAN << "| " << Color::WHITE << std::left << std::setw(28) << label 
+                      << Color::CYAN << "| " << valColor << std::left << std::setw(28) << val 
+                      << Color::CYAN << "|\n" << Color::RESET;
         };
 
-        std::stringstream rateStr;
-        rateStr << std::fixed << std::setprecision(1) << (ratePercent * 100.0) << "% per annum";
+        std::stringstream ssRate;
+        ssRate << std::fixed << std::setprecision(1) << (ratePercent * 100.0) << "% per annum";
 
         printRow("Account Number", std::to_string(accNum));
         printRow("Account Holder", holder);
         printRow("Account Type", type);
-        printRow("Annual Interest Rate", rateStr.str());
-        printRow("Current Principal", formatCurrency(principal));
-        printRow("Annual Interest Earned", formatCurrency(interest), Color::BOLD_GREEN);
-        printRow("Projected Balance (1 Yr)", formatCurrency(projectedBal), Color::BOLD_GREEN);
+        printRow("Annual Interest Rate", ssRate.str(), Color::YELLOW);
+        printRow("Principal Balance", formatCurrency(principal));
+        printRow("Estimated Annual Interest", formatCurrency(interest), Color::BOLD_MAGENTA);
+        printRow("Projected Balance (1 Year)", formatCurrency(projectedBal), Color::BOLD_GREEN);
 
-        std::cout << Color::BOLD_MAGENTA;
+        std::cout << Color::BOLD_CYAN;
         std::cout << "+------------------------------+------------------------------+\n";
         std::cout << Color::RESET;
     }
 
     std::string getString(const std::string& prompt)
     {
-        std::string line;
+        std::string input;
         while (true)
         {
             if (std::cin.eof()) return "";
-
-            std::cout << Color::BOLD_WHITE << prompt << Color::CYAN;
-            if (!std::getline(std::cin, line))
-            {
-                std::cout << Color::RESET;
-                return "";
-            }
+            std::cout << Color::WHITE << prompt << Color::BOLD_CYAN;
+            if (!std::getline(std::cin, input)) return "";
             std::cout << Color::RESET;
 
-            // Trim leading/trailing whitespace
-            size_t first = line.find_first_not_of(" \t\r\n");
-            if (first == std::string::npos)
+            size_t first = input.find_first_not_of(" \t\r\n");
+            size_t last = input.find_last_not_of(" \t\r\n");
+            if (first != std::string::npos && last != std::string::npos)
             {
-                if (std::cin.eof()) return "";
-                printError("Input cannot be empty. Please enter a valid text.");
-                continue;
+                return input.substr(first, (last - first + 1));
             }
-            size_t last = line.find_last_not_of(" \t\r\n");
-            return line.substr(first, (last - first + 1));
+
+            printError("Input cannot be empty. Please enter a valid string.");
         }
     }
 
     int getInt(const std::string& prompt, int minVal, int maxVal)
     {
+        int value;
+        std::string line;
         while (true)
         {
-            if (std::cin.eof()) return maxVal; // default safe exit if input stream ends
-
-            std::cout << Color::BOLD_WHITE << prompt << Color::CYAN;
-            std::string line;
-            if (!std::getline(std::cin, line))
-            {
-                std::cout << Color::RESET;
-                return maxVal;
-            }
+            if (std::cin.eof()) return minVal;
+            std::cout << Color::WHITE << prompt << Color::BOLD_CYAN;
+            if (!std::getline(std::cin, line)) return minVal;
             std::cout << Color::RESET;
 
-            // Trim whitespace
-            size_t first = line.find_first_not_of(" \t\r\n");
-            if (first == std::string::npos)
+            std::stringstream ss(line);
+            if (ss >> value && !(ss >> line))
             {
-                if (std::cin.eof()) return maxVal;
-                printError("Please enter a number.");
-                continue;
-            }
-            size_t last = line.find_last_not_of(" \t\r\n");
-            std::string trimmed = line.substr(first, (last - first + 1));
-
-            try
-            {
-                size_t idx = 0;
-                int val = std::stoi(trimmed, &idx);
-                if (idx == trimmed.length())
+                if (value >= minVal && value <= maxVal)
                 {
-                    if (val >= minVal && val <= maxVal)
-                    {
-                        return val;
-                    }
-                    printError("Value must be between " + std::to_string(minVal) + " and " + std::to_string(maxVal) + ".");
-                    continue;
+                    return value;
                 }
+                printError("Value out of valid range [" + std::to_string(minVal) + " - " + 
+                           std::to_string(maxVal) + "]. Please re-enter.");
             }
-            catch (...)
+            else
             {
-                // Fallthrough to error below
+                printError("Invalid numerical format! Please enter an integer.");
             }
-            printError("Invalid numerical input. Please enter a valid integer.");
         }
     }
 
     double getDouble(const std::string& prompt, double minVal)
     {
+        double value;
+        std::string line;
         while (true)
         {
             if (std::cin.eof()) return minVal;
-
-            std::cout << Color::BOLD_WHITE << prompt << Color::CYAN;
-            std::string line;
-            if (!std::getline(std::cin, line))
-            {
-                std::cout << Color::RESET;
-                return minVal;
-            }
+            std::cout << Color::WHITE << prompt << Color::BOLD_CYAN;
+            if (!std::getline(std::cin, line)) return minVal;
             std::cout << Color::RESET;
 
-            // Trim whitespace
-            size_t first = line.find_first_not_of(" \t\r\n");
-            if (first == std::string::npos)
+            std::stringstream ss(line);
+            if (ss >> value && !(ss >> line))
             {
-                if (std::cin.eof()) return minVal;
-                printError("Please enter an amount.");
-                continue;
-            }
-            size_t last = line.find_last_not_of(" \t\r\n");
-            std::string trimmed = line.substr(first, (last - first + 1));
-
-            try
-            {
-                size_t idx = 0;
-                double val = std::stod(trimmed, &idx);
-                if (idx == trimmed.length())
+                if (value >= minVal)
                 {
-                    if (val >= minVal)
-                    {
-                        return val;
-                    }
-                    printError("Amount cannot be less than " + formatCurrency(minVal) + ".");
-                    continue;
+                    return value;
                 }
+                printError("Amount cannot be less than " + formatCurrency(minVal) + ". Please re-enter.");
             }
-            catch (...)
+            else
             {
-                // Fallthrough to error below
+                printError("Invalid monetary amount! Please enter a valid decimal number.");
             }
-            printError("Invalid numerical input. Please enter a valid decimal number (e.g. 500 or 1250.75).");
         }
     }
 }

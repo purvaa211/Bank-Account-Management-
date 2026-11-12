@@ -52,7 +52,12 @@ namespace UI
 
     // Formatted Data Displays
     void printReceipt(int accNum, const std::string& holder, const std::string& type, 
-                      const std::string& txType, double prevBal, double amount, double newBal);
+                      const std::string& txType, double prevBal, double amount, double newBal,
+                      const std::string& txId = "", const std::string& risk = "LOW");
+
+    void printTransferReceipt(const std::string& txId, int senderAcc, const std::string& senderName,
+                              int receiverAcc, const std::string& receiverName,
+                              double amount, double senderNewBal, const std::string& risk = "LOW");
     
     void printInterestCard(int accNum, const std::string& holder, const std::string& type,
                            double ratePercent, double principal, double interest, double projectedBal);
