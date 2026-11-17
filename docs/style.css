@@ -1254,7 +1254,7 @@ h1, h2, h3, h4, .serif {
 
 /* Print Styles */
 @media print {
-  .sidebar, .topbar, .statement-search-toolbar, .hero-actions, .menu-toggle, .app-footer {
+  .sidebar, .topbar, .statement-search-toolbar, .hero-actions, .menu-toggle {
     display: none !important;
   }
   .main-wrapper {
@@ -1265,18 +1265,6 @@ h1, h2, h3, h4, .serif {
     box-shadow: none !important;
     padding: 0 !important;
   }
-}
-
-/* ==============================================================================
-   Footer
-   ============================================================================== */
-.app-footer {
-  padding: 1.4rem 2rem;
-  border-top: 1px solid var(--border-light);
-  background-color: var(--bg-card);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-align: center;
 }
 
 /* ==============================================================================
