@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <ctime>
 #include "Transaction.h"
 
 /**
@@ -10,21 +11,23 @@
  * OOP CONCEPT: MODULAR RULE-BASED SECURITY MONITORING & AGGREGATION
  * Dedicated Transaction Security Engine.
  * Evaluates live transactions against established banking risk rules:
- *   1. Large Transaction Threshold Rule
- *   2. Daily Cumulative Debit Limit Rule
- *   3. Rapid Repeated Transaction Velocity Rule
+ *   1. Large Transaction Threshold Rule (Advisory vs Critical)
+ *   2. Daily Cumulative Debit Limit Rule (Withdrawals and outgoing transfers)
+ *   3. Rapid Repeated Transaction Velocity Rule (Timestamp delta comparison)
  * ============================================================================
  */
 
 struct SecurityRuleConfig
 {
-    double largeTransactionThreshold; // e.g. Rs. 50,000.00
-    double dailyDebitLimit;            // e.g. Rs. 100,000.00
-    int rapidWindowMinutes;            // e.g. 2 minutes
-    int rapidMaxCount;                 // e.g. 3 transactions within window
+    double advisoryTransactionThreshold; // e.g. Rs. 50,000.00 (MEDIUM)
+    double criticalTransactionThreshold; // e.g. Rs. 100,000.00 (HIGH)
+    double dailyDebitLimit;               // e.g. Rs. 100,000.00 (HIGH)
+    int rapidWindowMinutes;               // e.g. 2 minutes
+    int rapidMaxCount;                    // e.g. 3 transactions within window
 
     SecurityRuleConfig()
-        : largeTransactionThreshold(50000.0),
+        : advisoryTransactionThreshold(50000.0),
+          criticalTransactionThreshold(100000.0),
           dailyDebitLimit(100000.0),
           rapidWindowMinutes(2),
           rapidMaxCount(3)
@@ -67,15 +70,19 @@ private:
     std::vector<SecurityAlert> alerts;
     static int nextAlertId;
 
-    // Helper to calculate total debit amount for an account within the current day
+    // Helper to calculate total outgoing debit amount for an account within the current day
     double getDailyDebitTotal(int accountNumber, const std::string& datePrefix, 
                               const std::vector<Transaction>& history) const;
 
-    // Helper to calculate recent transactions within rapid velocity window
-    int getRecentTransactionCount(int accountNumber, const std::vector<Transaction>& history) const;
+    // Helper to calculate recent transactions within rapid velocity window using timestamp math
+    int getRecentTransactionCountWithinWindow(int accountNumber, const std::string& currentTimestamp, 
+                                              const std::vector<Transaction>& history) const;
 
 public:
     FraudDetector();
+
+    // Timestamp parsing utility
+    static std::time_t parseTimestampToEpoch(const std::string& timestampStr);
 
     // Core rule-based transaction evaluation
     SecurityAlert evaluateTransaction(const Transaction& tx, const std::vector<Transaction>& history);
@@ -93,7 +100,8 @@ public:
 
     // Configuration getters & setters
     SecurityRuleConfig getConfig() const;
-    void setLargeTransactionThreshold(double threshold);
+    void setAdvisoryThreshold(double threshold);
+    void setCriticalThreshold(double threshold);
     void setDailyDebitLimit(double limit);
     void setRapidVelocityRules(int windowMinutes, int maxCount);
 

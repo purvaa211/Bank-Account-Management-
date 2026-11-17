@@ -6,19 +6,29 @@
 #include <cmath>
 #include <chrono>
 #include <ctime>
+#include <sstream>
 
-static std::string calculateFutureDate(int monthsToAdd)
+static std::string calculateFutureDateFrom(const std::string& startDateStr, int monthsToAdd)
 {
-    auto now = std::chrono::system_clock::now();
-    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-    std::tm* p = std::localtime(&now_c);
-    if (!p) return "2027-10-12";
+    int y = 2026, m = 11, d = 12;
+    if (!startDateStr.empty() && startDateStr.length() >= 10)
+    {
+        char dash1, dash2;
+        std::stringstream ss(startDateStr);
+        if (ss >> y >> dash1 >> m >> dash2 >> d)
+        {
+            // Successfully parsed
+        }
+    }
 
-    std::tm parts = *p;
-    parts.tm_mon += monthsToAdd;
-    std::mktime(&parts);
+    std::tm timeInfo = {};
+    timeInfo.tm_year = y - 1900;
+    timeInfo.tm_mon = (m - 1) + monthsToAdd;
+    timeInfo.tm_mday = d;
+    std::mktime(&timeInfo);
+
     char buf[32];
-    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &parts);
+    std::strftime(buf, sizeof(buf), "%Y-%m-%d", &timeInfo);
     return std::string(buf);
 }
 
@@ -27,21 +37,29 @@ void FixedDepositAccount::computeMaturity()
     // Compound interest: A = P * (1 + r / 4)^(4 * t), compounding quarterly
     double t = static_cast<double>(termMonths) / 12.0;
     maturityAmount = getBalance() * std::pow(1.0 + (interestRate / 4.0), 4.0 * t);
-    maturityDate = calculateFutureDate(termMonths);
+    maturityDate = calculateFutureDateFrom(getOpeningDate(), termMonths);
 }
 
 FixedDepositAccount::FixedDepositAccount(const std::string& n, double principal, int term, 
                                          const std::string& date, double rate)
-    : Account(n, principal, date), termMonths(term), interestRate(rate), 
+    : Account(201, n, principal, date), termMonths(term), interestRate(rate), 
       maturityAmount(0.0), maturityDate(""), isMatured(false)
 {
     computeMaturity();
 }
 
-FixedDepositAccount::FixedDepositAccount(int accNum, const std::string& n, double principal, 
+FixedDepositAccount::FixedDepositAccount(int custId, const std::string& n, double principal, int term, 
+                                         const std::string& date, double rate)
+    : Account(custId, n, principal, date), termMonths(term), interestRate(rate), 
+      maturityAmount(0.0), maturityDate(""), isMatured(false)
+{
+    computeMaturity();
+}
+
+FixedDepositAccount::FixedDepositAccount(int accNum, int custId, const std::string& n, double principal, 
                                          const std::string& stat, const std::string& date, 
                                          int term, double rate, double matAmt, const std::string& matDate)
-    : Account(accNum, n, principal, stat, date), termMonths(term), 
+    : Account(accNum, custId, n, principal, stat, date), termMonths(term), 
       interestRate(rate), maturityAmount(matAmt), maturityDate(matDate), isMatured(false)
 {
 }
@@ -81,7 +99,7 @@ void FixedDepositAccount::withdraw(double amount)
     }
 
     UI::printWarning("PREMATURE LIQUIDATION NOTICE: Withdrawing funds prior to maturity (" + 
-                     maturityDate + ") will forgo accrued interest.");
+                     maturityDate + ") will forfeit accrued interest.");
 
     setBalance(getBalance() - amount);
     computeMaturity();
@@ -103,13 +121,14 @@ void FixedDepositAccount::calculateInterest()
     };
 
     printField("Account Number", std::to_string(getAccountNumber()));
+    printField("Customer ID", "CUST-" + std::to_string(getCustomerId()), UI::Color::BOLD_YELLOW);
     printField("Account Holder", getName());
     printField("Investment Principal", UI::formatCurrency(getBalance()));
     printField("Annual Interest Rate", std::to_string(interestRate * 100.0).substr(0, 4) + "% p.a.");
     printField("Investment Duration", std::to_string(termMonths) + " Months");
     printField("Guaranteed Maturity Date", maturityDate, UI::Color::BOLD_YELLOW);
-    printField("Total Projected Interest", UI::formatCurrency(interestEarned), UI::Color::BOLD_GREEN);
-    printField("Maturity Value", UI::formatCurrency(maturityAmount), UI::Color::BOLD_GREEN);
+    printField("Projected Term Interest", UI::formatCurrency(interestEarned), UI::Color::BOLD_GREEN);
+    printField("Projected Maturity Value", UI::formatCurrency(maturityAmount), UI::Color::BOLD_GREEN);
 
     std::cout << UI::Color::BOLD_CYAN;
     std::cout << "+------------------------------+------------------------------+\n";

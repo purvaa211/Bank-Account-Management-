@@ -21,22 +21,25 @@ static std::string getCurrentDateString()
     }
     else
     {
-        return "2026-10-12";
+        return "2026-11-12";
     }
     return std::string(buf);
 }
 
 Account::Account(const std::string& n, double b, const std::string& date)
+    : accountNumber(nextAccountNumber++), customerId(201), name(n), balance(b), status("ACTIVE")
 {
-    this->name = n;
-    this->balance = b;
-    this->accountNumber = nextAccountNumber++;
-    this->status = "ACTIVE";
     this->openingDate = date.empty() ? getCurrentDateString() : date;
 }
 
-Account::Account(int accNum, const std::string& n, double b, const std::string& stat, const std::string& date)
-    : accountNumber(accNum), name(n), balance(b), status(stat), openingDate(date)
+Account::Account(int custId, const std::string& n, double b, const std::string& date)
+    : accountNumber(nextAccountNumber++), customerId(custId), name(n), balance(b), status("ACTIVE")
+{
+    this->openingDate = date.empty() ? getCurrentDateString() : date;
+}
+
+Account::Account(int accNum, int custId, const std::string& n, double b, const std::string& stat, const std::string& date)
+    : accountNumber(accNum), customerId(custId), name(n), balance(b), status(stat), openingDate(date)
 {
 }
 
@@ -116,6 +119,7 @@ void Account::display() const
     };
 
     printField("Account Number", std::to_string(accountNumber));
+    printField("Customer ID", "CUST-" + std::to_string(customerId), UI::Color::BOLD_YELLOW);
     printField("Account Holder", name);
     printField("Account Type", getAccountType());
     printField("Current Balance", UI::formatCurrency(balance), balance >= 0 ? UI::Color::BOLD_GREEN : UI::Color::BOLD_RED);
@@ -130,6 +134,11 @@ void Account::display() const
 int Account::getAccountNumber() const
 {
     return accountNumber;
+}
+
+int Account::getCustomerId() const
+{
+    return customerId;
 }
 
 std::string Account::getName() const
@@ -157,6 +166,16 @@ bool Account::isActive() const
     return status == "ACTIVE";
 }
 
+void Account::setCustomerId(int id)
+{
+    customerId = id;
+}
+
+void Account::setName(const std::string& n)
+{
+    name = n;
+}
+
 bool Account::operator>(const Account& other) const
 {
     return this->balance > other.balance;
@@ -174,7 +193,7 @@ bool Account::operator==(const Account& other) const
 
 std::ostream& operator<<(std::ostream& os, const Account& acc)
 {
-    os << "Acc #" << acc.accountNumber << " [" << acc.getAccountType() << "] "
+    os << "Acc #" << acc.accountNumber << " (CUST-" << acc.customerId << ") [" << acc.getAccountType() << "] "
        << acc.name << " | Bal: " << UI::formatCurrency(acc.balance)
        << " | " << acc.status;
     return os;

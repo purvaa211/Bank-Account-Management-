@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -32,7 +32,7 @@
         <img src="logo.png" alt="SmartBank Logo" class="brand-logo">
         <div class="brand-text">
           <span class="brand-name">SmartBank</span>
-          <span class="brand-tag">Security &amp; Core Banking</span>
+          <span class="brand-tag">Core Banking &amp; Security</span>
         </div>
       </div>
 
@@ -44,9 +44,16 @@
           <span class="nav-label">Dashboard</span>
         </a>
 
+        <a href="#customers" class="nav-item" data-page="customers">
+          <span class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </span>
+          <span class="nav-label">Customers</span>
+        </a>
+
         <a href="#accounts" class="nav-item" data-page="accounts">
           <span class="nav-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
           </span>
           <span class="nav-label">Accounts</span>
         </a>
@@ -103,7 +110,7 @@
           </button>
           <div class="page-title-box">
             <h1 class="page-title" id="pageTitleHeading">Dashboard</h1>
-            <span class="page-subtitle" id="pageSubtitleHeading">Financial metrics, transaction flow &amp; live security monitoring</span>
+            <span class="page-subtitle" id="pageSubtitleHeading">Financial metrics, transaction flow and live security monitoring</span>
           </div>
         </div>
 
@@ -128,12 +135,16 @@
         <!-- ================= PAGE: DASHBOARD ================= -->
         <section class="page-section active" id="page-dashboard">
           
-          <!-- Welcome Hero Bar -->
+          <!-- Welcome Hero Bar (Date/Day removed as requested) -->
           <div class="dashboard-hero">
             <div class="hero-left">
               <h2>Welcome to SmartBank Management Portal</h2>
             </div>
             <div class="hero-actions">
+              <button class="btn btn-secondary" onclick="openRegisterCustomerModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                New Customer
+              </button>
               <button class="btn btn-primary" onclick="navigateTo('accounts', 'create')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 New Account
@@ -152,13 +163,24 @@
           <!-- Key Metrics Cards -->
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-icon-wrap bg-blue-subtle text-blue">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+              <div class="stat-icon-wrap bg-forest-subtle text-forest">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-label">Registered Customers</span>
+                <span class="stat-value" id="statCustomersCount">0</span>
+                <span class="stat-meta text-muted">Customer entity directory</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-wrap bg-brass-subtle text-brass">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
               </div>
               <div class="stat-content">
                 <span class="stat-label">Total Active Accounts</span>
                 <span class="stat-value" id="statAccountsCount">0</span>
-                <span class="stat-meta text-muted">Across 3 account types</span>
+                <span class="stat-meta text-muted">Savings, Current and FD</span>
               </div>
             </div>
 
@@ -167,20 +189,9 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
               </div>
               <div class="stat-content">
-                <span class="stat-label">Total Deposits in Vault</span>
-                <span class="stat-value text-green" id="statTotalDeposits">₹0.00</span>
+                <span class="stat-label">Total Vault Reserves</span>
+                <span class="stat-value text-green" id="statTotalDeposits">Rs. 0.00</span>
                 <span class="stat-meta text-muted">Total active bank balance</span>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon-wrap bg-purple-subtle text-purple">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-              </div>
-              <div class="stat-content">
-                <span class="stat-label">Total Transactions</span>
-                <span class="stat-value" id="statTransactionsCount">0</span>
-                <span class="stat-meta text-muted" id="statWithdrawalsSub">Withdrawals: ₹0.00</span>
               </div>
             </div>
 
@@ -196,13 +207,13 @@
             </div>
           </div>
 
-          <!-- Charts Section -->
+          <!-- Portfolio and Flow Summary Cards -->
           <div class="charts-grid">
             <div class="card chart-card">
               <div class="card-header flex-header">
                 <div>
                   <h3>Cash Flow Volume Comparison</h3>
-                  <span class="card-subtitle">Inflows (Deposits) vs Outflows (Withdrawals &amp; Transfers)</span>
+                  <span class="card-subtitle">Inflows (Deposits) vs Outflows (Withdrawals and Transfers)</span>
                 </div>
               </div>
               <div class="card-body">
@@ -231,8 +242,8 @@
           <div class="security-overview-card">
             <div class="sec-left">
               <div class="sec-badge">RULE-BASED SECURITY ENGINE</div>
-              <h3>Transaction Risk &amp; Anomaly Monitoring Status</h3>
-              <p>Continuous rule-based surveillance active: Large Transaction Threshold (₹50k), Daily Limit (₹100k), and Velocity burst monitoring.</p>
+              <h3>Transaction Risk and Anomaly Monitoring Status</h3>
+              <p>Continuous rule-based surveillance active: Large Transaction Threshold (Rs. 50,000), Daily Cumulative Limit (Rs. 1,00,000), and Rapid Velocity window.</p>
             </div>
             <div class="sec-stats">
               <div class="sec-stat-box low">
@@ -264,7 +275,7 @@
                 <thead>
                   <tr>
                     <th>Txn ID</th>
-                    <th>Date &amp; Time</th>
+                    <th>Date and Time</th>
                     <th>Type</th>
                     <th>From</th>
                     <th>To</th>
@@ -282,12 +293,55 @@
 
         </section>
 
+        <!-- ================= PAGE: CUSTOMERS ================= -->
+        <section class="page-section" id="page-customers">
+          
+          <div class="section-toolbar">
+            <div class="toolbar-search">
+              <input type="text" id="customerSearchInput" class="form-control" placeholder="Search customer by name, ID, email or phone...">
+            </div>
+            <button class="btn btn-primary" id="btnOpenRegisterCustomerModal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Register New Customer
+            </button>
+          </div>
+
+          <!-- Customers Directory Table -->
+          <div class="card">
+            <div class="card-header flex-header">
+              <div>
+                <h3>Registered Customer Directory</h3>
+                <span class="card-subtitle">Customer profiles holding one or multiple specialized bank accounts</span>
+              </div>
+              <span class="badge badge-neutral" id="customerCountBadge">0 Customers</span>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Customer ID</th>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>Phone Number</th>
+                    <th>Owned Accounts</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="customersTableBody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
         <!-- ================= PAGE: ACCOUNTS ================= -->
         <section class="page-section" id="page-accounts">
           
           <div class="section-toolbar">
             <div class="toolbar-search">
-              <input type="text" id="accountSearchInput" class="form-control" placeholder="Search accounts by name or account number...">
+              <input type="text" id="accountSearchInput" class="form-control" placeholder="Search accounts by name, account # or customer ID...">
               <select id="accountTypeFilter" class="form-control filter-select">
                 <option value="ALL">All Account Types</option>
                 <option value="Savings Account">Savings Accounts</option>
@@ -297,7 +351,7 @@
             </div>
             <button class="btn btn-primary" id="btnOpenCreateAccountModal">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              Create New Account
+              Open New Account
             </button>
           </div>
 
@@ -315,6 +369,7 @@
                 <thead>
                   <tr>
                     <th>Account #</th>
+                    <th>Customer ID</th>
                     <th>Account Holder</th>
                     <th>Account Type</th>
                     <th>Features / Limits</th>
@@ -361,7 +416,7 @@
                     <span class="account-peek" id="depAccountPeek"></span>
                   </div>
                   <div class="form-group">
-                    <label>Deposit Amount (₹) <span class="required">*</span></label>
+                    <label>Deposit Amount (Rs.) <span class="required">*</span></label>
                     <input type="number" step="0.01" min="1" id="depAmount" class="form-control" placeholder="0.00" required>
                   </div>
                   <div class="form-group">
@@ -379,9 +434,9 @@
                     <span class="account-peek" id="withAccountPeek"></span>
                   </div>
                   <div class="form-group">
-                    <label>Withdrawal Amount (₹) <span class="required">*</span></label>
+                    <label>Withdrawal Amount (Rs.) <span class="required">*</span></label>
                     <input type="number" step="0.01" min="1" id="withAmount" class="form-control" placeholder="0.00" required>
-                    <span class="form-hint">Savings requires ₹1,000 min balance. Current accounts support approved overdraft.</span>
+                    <span class="form-hint">Savings requires Rs. 1,000 min balance. Current accounts support approved overdraft.</span>
                   </div>
                   <div class="form-group">
                     <label>Reason / Note</label>
@@ -403,7 +458,7 @@
                     <span class="account-peek" id="trReceiverPeek"></span>
                   </div>
                   <div class="form-group">
-                    <label>Transfer Amount (₹) <span class="required">*</span></label>
+                    <label>Transfer Amount (Rs.) <span class="required">*</span></label>
                     <input type="number" step="0.01" min="1" id="trAmount" class="form-control" placeholder="0.00" required>
                   </div>
                   <div class="form-group">
@@ -510,12 +565,12 @@
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon-wrap bg-amber-subtle text-amber">
+              <div class="stat-icon-wrap bg-brass-subtle text-brass">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
               </div>
               <div class="stat-content">
                 <span class="stat-label">Medium-Risk Alerts</span>
-                <span class="stat-value text-amber" id="secMedRiskCount">0</span>
+                <span class="stat-value text-brass" id="secMedRiskCount">0</span>
                 <span class="stat-meta text-muted">Advisory review events</span>
               </div>
             </div>
@@ -525,9 +580,9 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
               </div>
               <div class="stat-content">
-                <span class="stat-label">Reviewed &amp; Approved</span>
+                <span class="stat-label">Reviewed &amp; Cleared</span>
                 <span class="stat-value text-green" id="secApprovedCount">0</span>
-                <span class="stat-meta text-muted">Cleared by administrator</span>
+                <span class="stat-meta text-muted">Cleared by supervisor</span>
               </div>
             </div>
           </div>
@@ -546,7 +601,7 @@
                     <h4>Large Transaction Alert</h4>
                   </div>
                   <p>Transactions exceeding configured threshold are flagged for immediate supervisory review.</p>
-                  <div class="rule-meta">Threshold: <strong id="cfgRuleLargeTx">₹50,000.00</strong></div>
+                  <div class="rule-meta">Threshold: <strong id="cfgRuleLargeTx">Rs. 50,000.00</strong></div>
                 </div>
 
                 <div class="rule-box">
@@ -554,8 +609,8 @@
                     <span class="rule-tag tag-high">Rule 2</span>
                     <h4>Daily Cumulative Debit Limit</h4>
                   </div>
-                  <p>Monitors cumulative daily withdrawals &amp; outgoing transfers per account to prevent account drain.</p>
-                  <div class="rule-meta">Daily Limit: <strong id="cfgRuleDaily">₹1,00,000.00</strong></div>
+                  <p>Monitors cumulative daily withdrawals and outgoing transfers per account to prevent account drain.</p>
+                  <div class="rule-meta">Daily Limit: <strong id="cfgRuleDaily">Rs. 1,00,000.00</strong></div>
                 </div>
 
                 <div class="rule-box">
@@ -563,7 +618,7 @@
                     <span class="rule-tag tag-medium">Rule 3</span>
                     <h4>Rapid Transaction Velocity</h4>
                   </div>
-                  <p>Detects multiple rapid consecutive transactions within a narrow time window.</p>
+                  <p>Detects multiple rapid consecutive transactions within a narrow time window using epoch-based timestamp analysis.</p>
                   <div class="rule-meta">Velocity Rule: <strong id="cfgRuleVelocity">3 transactions in 2 mins</strong></div>
                 </div>
               </div>
@@ -627,15 +682,19 @@
                 </div>
               </div>
               <div class="stmt-meta text-right">
-                <span class="stmt-date" id="stmtCurrentDate">Date: 2026-11-12</span>
+                <span class="stmt-date" id="stmtCurrentDate">Date: 2026-11-17</span>
                 <span class="stmt-badge">CERTIFIED COPY</span>
               </div>
             </div>
 
             <div class="statement-account-info" id="stmtAccountDetailsBox">
               <div class="info-cell">
+                <span class="lbl">Customer ID</span>
+                <span class="val" id="stmtCustomerId">CUST-201</span>
+              </div>
+              <div class="info-cell">
                 <span class="lbl">Account Holder</span>
-                <span class="val" id="stmtHolderName">Primary Account Holder</span>
+                <span class="val" id="stmtHolderName">Vikram Malhotra</span>
               </div>
               <div class="info-cell">
                 <span class="lbl">Account Number</span>
@@ -647,7 +706,7 @@
               </div>
               <div class="info-cell">
                 <span class="lbl">Current Balance</span>
-                <span class="val text-green" id="stmtClosingBalance">₹0.00</span>
+                <span class="val text-green" id="stmtClosingBalance">Rs. 0.00</span>
               </div>
             </div>
 
@@ -656,7 +715,7 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Date &amp; Time</th>
+                    <th>Date and Time</th>
                     <th>Transaction ID</th>
                     <th>Description</th>
                     <th>Type</th>
@@ -671,7 +730,7 @@
             </div>
 
             <div class="statement-footer">
-              <p>This is a computer-generated bank statement from SmartBank Core Banking System. Demonstrates OOP Friend Class pattern with privileged account access.</p>
+              <p>This is a certified bank statement generated by SmartBank Core Banking System. Demonstrates C++ OOP Friend Class pattern with privileged account access.</p>
               <p class="stmt-sign">Authorized System Controller: System Administrator</p>
             </div>
           </div>
@@ -692,12 +751,12 @@
               <div class="card-body">
                 <form id="settingsRulesForm">
                   <div class="form-group">
-                    <label>Large Transaction Alert Threshold (₹)</label>
+                    <label>Large Transaction Alert Threshold (Rs.)</label>
                     <input type="number" id="setLargeThreshold" class="form-control" value="50000" min="1000">
                     <span class="form-hint">Transactions >= this value trigger MEDIUM risk. >= 2x triggers HIGH risk.</span>
                   </div>
                   <div class="form-group">
-                    <label>Daily Cumulative Debit Limit (₹)</label>
+                    <label>Daily Cumulative Debit Limit (Rs.)</label>
                     <input type="number" id="setDailyLimit" class="form-control" value="100000" min="5000">
                     <span class="form-hint">Alerts when daily outgoing debits exceed this volume.</span>
                   </div>
@@ -723,7 +782,7 @@
                     <span class="font-600">Storage Engine:</span>
                     <span class="badge badge-success">LocalStorage Active</span>
                   </div>
-                  <p class="text-sm text-secondary mb-3">All accounts, transactions, and security alerts automatically persist across application restarts and page refreshes.</p>
+                  <p class="text-sm text-secondary mb-3">All customers, accounts, transactions, and security alerts automatically persist across application restarts and page refreshes.</p>
                 </div>
 
                 <div class="settings-actions-list">
@@ -749,8 +808,106 @@
 
       </main>
 
+      <!-- App Footer (No author name, completely clean) -->
+      <footer class="app-footer">
+        <div class="footer-content">
+          <span>SmartBank Management System &bull; Course Project: Object-Oriented Programming in C++</span>
+        </div>
+      </footer>
+
     </div>
 
+  </div>
+
+  <!-- ================= MODAL: REGISTER CUSTOMER ================= -->
+  <div class="modal-overlay" id="registerCustomerModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3>Register New Customer Profile</h3>
+          <span class="modal-subtitle">Create a primary customer profile before opening banking accounts</span>
+        </div>
+        <button class="modal-close" id="btnCloseCustomerModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="registerCustomerForm">
+          <div class="form-group">
+            <label>Customer Full Name <span class="required">*</span></label>
+            <input type="text" id="custNameInput" class="form-control" placeholder="e.g. Priya Nair" required>
+          </div>
+
+          <div class="form-group">
+            <label>Email Address <span class="required">*</span></label>
+            <input type="email" id="custEmailInput" class="form-control" placeholder="e.g. priya.nair@techhub.in" required>
+          </div>
+
+          <div class="form-group">
+            <label>Contact Phone Number <span class="required">*</span></label>
+            <input type="text" id="custPhoneInput" class="form-control" placeholder="e.g. +91 98204 45678" required>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelCustomerModal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Customer Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: EDIT CUSTOMER CONTACT ================= -->
+  <div class="modal-overlay" id="editCustomerModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3>Update Customer Contact Information</h3>
+          <span class="modal-subtitle" id="editCustSubtitle">CUST-201</span>
+        </div>
+        <button class="modal-close" id="btnCloseEditCustModal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="editCustomerForm">
+          <input type="hidden" id="editCustId">
+          <div class="form-group">
+            <label>Customer Full Name</label>
+            <input type="text" id="editCustName" class="form-control" readonly style="background-color: var(--bg-subtle);">
+          </div>
+
+          <div class="form-group">
+            <label>Email Address <span class="required">*</span></label>
+            <input type="email" id="editCustEmail" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label>Contact Phone Number <span class="required">*</span></label>
+            <input type="text" id="editCustPhone" class="form-control" required>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btnCancelEditCustModal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CUSTOMER ACCOUNTS LIST ================= -->
+  <div class="modal-overlay" id="customerAccountsModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3>Customer Portfolio &amp; Owned Accounts</h3>
+          <span class="modal-subtitle" id="custAccModalSubtitle">Accounts belonging to customer</span>
+        </div>
+        <button class="modal-close" id="btnCloseCustAccModal">&times;</button>
+      </div>
+      <div class="modal-body" id="customerAccountsModalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
   </div>
 
   <!-- ================= MODAL: CREATE ACCOUNT ================= -->
@@ -758,8 +915,8 @@
     <div class="modal-dialog">
       <div class="modal-header">
         <div>
-          <h3>Create New Bank Account</h3>
-          <span class="modal-subtitle">Select account specialization and enter customer details</span>
+          <h3>Open New Bank Account</h3>
+          <span class="modal-subtitle">Link account to a registered customer and set parameters</span>
         </div>
         <button class="modal-close" id="btnCloseCreateModal">&times;</button>
       </div>
@@ -770,7 +927,7 @@
         <div class="modal-type-tabs">
           <button class="modal-type-btn active" data-type="savings">
             <span class="title">Savings Account</span>
-            <span class="desc">4.0% Interest | ₹1,000 Min Bal</span>
+            <span class="desc">4.0% Interest | Rs. 1,000 Min Bal</span>
           </button>
           <button class="modal-type-btn" data-type="current">
             <span class="title">Current Account</span>
@@ -784,19 +941,21 @@
 
         <form id="createAccountForm">
           <div class="form-group">
-            <label>Customer Full Name <span class="required">*</span></label>
-            <input type="text" id="caName" class="form-control" placeholder="e.g. Vikram Malhotra" required>
+            <label>Assign to Customer <span class="required">*</span></label>
+            <select id="caCustomerId" class="form-control" required>
+              <!-- Populated dynamically with registered customers -->
+            </select>
           </div>
 
           <div class="form-group">
-            <label>Initial Opening Balance (₹) <span class="required">*</span></label>
+            <label>Initial Opening Balance (Rs.) <span class="required">*</span></label>
             <input type="number" step="0.01" id="caBalance" class="form-control" placeholder="1000.00" value="1000" min="1000" required>
-            <span class="form-hint" id="caBalanceHint">Savings accounts require a minimum balance of ₹1,000.</span>
+            <span class="form-hint" id="caBalanceHint">Savings accounts require a minimum balance of Rs. 1,000.</span>
           </div>
 
           <!-- Dynamic Field: Current Account Overdraft -->
           <div class="form-group" id="caOverdraftGroup" style="display:none;">
-            <label>Approved Overdraft Facility Limit (₹)</label>
+            <label>Approved Overdraft Facility Limit (Rs.)</label>
             <input type="number" step="0.01" id="caOverdraft" class="form-control" value="25000" min="0">
             <span class="form-hint">Allows account balance to be negative up to this limit.</span>
           </div>
@@ -812,12 +971,16 @@
             </select>
             <div class="fd-calc-box mt-2" id="fdMaturityCalcBox">
               <div class="d-flex justify-between">
+                <span>Principal Deposit:</span>
+                <strong id="fdPrincipalValPreview">Rs. 100,000.00</strong>
+              </div>
+              <div class="d-flex justify-between mt-1">
                 <span>Calculated Maturity Value:</span>
-                <strong class="text-green" id="fdMaturityValPreview">₹1,071.86</strong>
+                <strong class="text-green" id="fdMaturityValPreview">Rs. 107,185.90</strong>
               </div>
               <div class="d-flex justify-between mt-1 text-sm text-secondary">
-                <span>Maturity Date:</span>
-                <span id="fdMaturityDatePreview">2027-11-12</span>
+                <span>Projected Maturity Date:</span>
+                <span id="fdMaturityDatePreview">2027-11-17</span>
               </div>
             </div>
           </div>
@@ -853,7 +1016,7 @@
     <div class="modal-dialog modal-warning">
       <div class="modal-header">
         <div>
-          <h3 class="text-amber">Security Review Advisory</h3>
+          <h3 class="text-brass">Security Review Advisory</h3>
           <span class="modal-subtitle">Rule engine triggered for financial transaction</span>
         </div>
         <button class="modal-close" id="btnCloseSecConfirmModal">&times;</button>
@@ -866,7 +1029,7 @@
         <p class="text-sm text-secondary">As an authorized administrator, please confirm whether to execute this transaction with security tagging, or reject it.</p>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btnRejectSecTx">Reject Transaction</button>
-          <button type="button" class="btn btn-primary" id="btnApproveSecTx">Authorize &amp; Execute</button>
+          <button type="submit" class="btn btn-primary" id="btnApproveSecTx">Authorize &amp; Execute</button>
         </div>
       </div>
     </div>

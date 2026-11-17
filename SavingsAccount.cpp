@@ -4,12 +4,17 @@
 #include <iostream>
 
 SavingsAccount::SavingsAccount(const std::string& n, double b, const std::string& date, double minBal)
-    : Account(n, b, date), minimumBalance(minBal), interestRate(0.04)
+    : Account(201, n, b, date), minimumBalance(minBal), interestRate(0.04)
 {
 }
 
-SavingsAccount::SavingsAccount(int accNum, const std::string& n, double b, const std::string& stat, const std::string& date, double minBal)
-    : Account(accNum, n, b, stat, date), minimumBalance(minBal), interestRate(0.04)
+SavingsAccount::SavingsAccount(int custId, const std::string& n, double b, const std::string& date, double minBal)
+    : Account(custId, n, b, date), minimumBalance(minBal), interestRate(0.04)
+{
+}
+
+SavingsAccount::SavingsAccount(int accNum, int custId, const std::string& n, double b, const std::string& stat, const std::string& date, double minBal)
+    : Account(accNum, custId, n, b, stat, date), minimumBalance(minBal), interestRate(0.04)
 {
 }
 

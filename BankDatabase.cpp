@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 #include <sys/stat.h>
 
 #ifdef _WIN32
@@ -29,12 +30,95 @@ static std::vector<std::string> splitCsvLine(const std::string& line)
 {
     std::vector<std::string> tokens;
     std::string token;
-    std::istringstream tokenStream(line);
-    while (std::getline(tokenStream, token, ','))
+    bool inQuotes = false;
+
+    for (size_t i = 0; i < line.length(); ++i)
     {
-        tokens.push_back(token);
+        char ch = line[i];
+        if (ch == '\"')
+        {
+            inQuotes = !inQuotes;
+        }
+        else if (ch == ',' && !inQuotes)
+        {
+            tokens.push_back(token);
+            token.clear();
+        }
+        else
+        {
+            token += ch;
+        }
     }
+    tokens.push_back(token);
     return tokens;
+}
+
+static std::string cleanToken(std::string t)
+{
+    while (!t.empty() && (t.front() == ' ' || t.front() == '\t' || t.front() == '\"'))
+    {
+        t.erase(0, 1);
+    }
+    while (!t.empty() && (t.back() == ' ' || t.back() == '\t' || t.back() == '\r' || t.back() == '\n' || t.back() == '\"'))
+    {
+        t.pop_back();
+    }
+    return t;
+}
+
+bool BankDatabase::saveCustomers(const std::vector<Customer>& customers) const
+{
+    ensureDirectoryExists();
+    std::ofstream out(dataDirectory + "/customers.csv");
+    if (!out) return false;
+
+    out << "CustomerId,FullName,Email,Phone\n";
+    for (const auto& c : customers)
+    {
+        out << c.getCustomerId() << ","
+            << "\"" << c.getFullName() << "\","
+            << "\"" << c.getEmail() << "\","
+            << "\"" << c.getPhone() << "\"\n";
+    }
+    out.close();
+    return true;
+}
+
+std::vector<Customer> BankDatabase::loadCustomers() const
+{
+    std::vector<Customer> list;
+    std::ifstream in(dataDirectory + "/customers.csv");
+    if (!in) return list;
+
+    std::string line;
+    if (!std::getline(in, line)) return list; // Skip header
+
+    int maxCustId = 200;
+
+    while (std::getline(in, line))
+    {
+        if (line.empty()) continue;
+        auto tokens = splitCsvLine(line);
+        if (tokens.size() < 2) continue;
+
+        try
+        {
+            int id = std::stoi(cleanToken(tokens[0]));
+            std::string name = cleanToken(tokens[1]);
+            std::string email = tokens.size() > 2 ? cleanToken(tokens[2]) : "";
+            std::string phone = tokens.size() > 3 ? cleanToken(tokens[3]) : "";
+
+            if (id > maxCustId) maxCustId = id;
+            list.emplace_back(id, name, email, phone);
+        }
+        catch (...)
+        {
+        }
+    }
+    in.close();
+
+    Customer::setNextCustomerId(maxCustId + 1);
+    return list;
 }
 
 bool BankDatabase::saveAccounts(const std::vector<Account*>& accounts) const
@@ -44,12 +128,13 @@ bool BankDatabase::saveAccounts(const std::vector<Account*>& accounts) const
     if (!out) return false;
 
     // Header
-    out << "AccountNumber,HolderName,AccountType,Balance,Status,OpeningDate,Extra1,Extra2,Extra3\n";
+    out << "AccountNumber,CustomerId,HolderName,AccountType,Balance,Status,OpeningDate,Extra1,Extra2,Extra3\n";
 
     for (const Account* acc : accounts)
     {
         out << acc->getAccountNumber() << ","
-            << acc->getName() << ","
+            << acc->getCustomerId() << ","
+            << "\"" << acc->getName() << "\","
             << acc->getAccountType() << ","
             << acc->getBalance() << ","
             << acc->getStatus() << ","
@@ -85,8 +170,7 @@ std::vector<Account*> BankDatabase::loadAccounts() const
     if (!in) return list;
 
     std::string line;
-    // Skip header line
-    if (!std::getline(in, line)) return list;
+    if (!std::getline(in, line)) return list; // Skip header
 
     int maxAccNum = 1000;
 
@@ -98,37 +182,43 @@ std::vector<Account*> BankDatabase::loadAccounts() const
 
         try
         {
-            int accNum = std::stoi(tokens[0]);
-            std::string name = tokens[1];
-            std::string type = tokens[2];
-            double bal = std::stod(tokens[3]);
-            std::string stat = tokens[4];
-            std::string date = tokens[5];
+            // Support both 10-column (with CustomerId) and 9-column legacy schemas
+            bool hasCustCol = (tokens.size() >= 10);
+            int accNum = std::stoi(cleanToken(tokens[0]));
+            int custId = hasCustCol ? std::stoi(cleanToken(tokens[1])) : 201;
+            std::string name = cleanToken(tokens[hasCustCol ? 2 : 1]);
+            std::string type = cleanToken(tokens[hasCustCol ? 3 : 2]);
+            double bal = std::stod(cleanToken(tokens[hasCustCol ? 4 : 3]));
+            std::string stat = cleanToken(tokens[hasCustCol ? 5 : 4]);
+            std::string date = cleanToken(tokens[hasCustCol ? 6 : 5]);
+
+            int extraIdx = hasCustCol ? 7 : 6;
 
             if (accNum > maxAccNum) maxAccNum = accNum;
 
             if (type == "Savings Account")
             {
-                double minBal = tokens.size() > 6 ? std::stod(tokens[6]) : 1000.0;
-                list.push_back(new SavingsAccount(accNum, name, bal, stat, date, minBal));
+                double minBal = tokens.size() > static_cast<size_t>(extraIdx) ? std::stod(cleanToken(tokens[extraIdx])) : 1000.0;
+                list.push_back(new SavingsAccount(accNum, custId, name, bal, stat, date, minBal));
             }
             else if (type == "Current Account")
             {
-                double overdraft = tokens.size() > 6 ? std::stod(tokens[6]) : 25000.0;
-                list.push_back(new CurrentAccount(accNum, name, bal, stat, date, overdraft));
+                double overdraft = tokens.size() > static_cast<size_t>(extraIdx) ? std::stod(cleanToken(tokens[extraIdx])) : 25000.0;
+                list.push_back(new CurrentAccount(accNum, custId, name, bal, stat, date, overdraft));
             }
             else if (type == "Fixed Deposit")
             {
-                int term = tokens.size() > 6 ? std::stoi(tokens[6]) : 12;
-                double rate = tokens.size() > 7 ? std::stod(tokens[7]) : 0.07;
-                std::string matDate = tokens.size() > 8 ? tokens[8] : "";
-                double matAmt = bal * 1.07; // approximate or compute
-                list.push_back(new FixedDepositAccount(accNum, name, bal, stat, date, term, rate, matAmt, matDate));
+                int term = tokens.size() > static_cast<size_t>(extraIdx) ? std::stoi(cleanToken(tokens[extraIdx])) : 12;
+                double rate = tokens.size() > static_cast<size_t>(extraIdx + 1) ? std::stod(cleanToken(tokens[extraIdx + 1])) : 0.07;
+                std::string matDate = tokens.size() > static_cast<size_t>(extraIdx + 2) ? cleanToken(tokens[extraIdx + 2]) : "";
+                double t = term / 12.0;
+                double matAmt = bal * std::pow(1.0 + (rate / 4.0), 4.0 * t);
+                list.push_back(new FixedDepositAccount(accNum, custId, name, bal, stat, date, term, rate, matAmt, matDate));
             }
         }
         catch (...)
         {
-            // Gracefully ignore malformed record
+            // Gracefully ignore corrupted record
         }
     }
     in.close();
@@ -180,19 +270,15 @@ std::vector<Transaction> BankDatabase::loadTransactions() const
 
         try
         {
-            std::string id = tokens[0];
-            int sender = std::stoi(tokens[1]);
-            int receiver = std::stoi(tokens[2]);
-            std::string type = tokens[3];
-            double amt = std::stod(tokens[4]);
-            std::string timeStr = tokens[5];
-            std::string stat = tokens[6];
-            std::string risk = tokens[7];
-            std::string reason = tokens.size() > 8 ? tokens[8] : "Normal";
-
-            // Remove surrounding quotes if present
-            if (!reason.empty() && reason.front() == '"') reason.erase(0, 1);
-            if (!reason.empty() && reason.back() == '"') reason.pop_back();
+            std::string id = cleanToken(tokens[0]);
+            int sender = std::stoi(cleanToken(tokens[1]));
+            int receiver = std::stoi(cleanToken(tokens[2]));
+            std::string type = cleanToken(tokens[3]);
+            double amt = std::stod(cleanToken(tokens[4]));
+            std::string timeStr = cleanToken(tokens[5]);
+            std::string stat = cleanToken(tokens[6]);
+            std::string risk = cleanToken(tokens[7]);
+            std::string reason = tokens.size() > 8 ? cleanToken(tokens[8]) : "Normal";
 
             if (id.find("TXN-") == 0)
             {
@@ -254,17 +340,14 @@ std::vector<SecurityAlert> BankDatabase::loadAlerts() const
 
         try
         {
-            int alertId = std::stoi(tokens[0]);
-            std::string txId = tokens[1];
-            int acc = std::stoi(tokens[2]);
-            double amt = std::stod(tokens[3]);
-            std::string risk = tokens[4];
-            std::string reason = tokens[5];
-            std::string timeStr = tokens[6];
-            std::string revStatus = tokens.size() > 7 ? tokens[7] : "PENDING_REVIEW";
-
-            if (!reason.empty() && reason.front() == '"') reason.erase(0, 1);
-            if (!reason.empty() && reason.back() == '"') reason.pop_back();
+            int alertId = std::stoi(cleanToken(tokens[0]));
+            std::string txId = cleanToken(tokens[1]);
+            int acc = std::stoi(cleanToken(tokens[2]));
+            double amt = std::stod(cleanToken(tokens[3]));
+            std::string risk = cleanToken(tokens[4]);
+            std::string reason = cleanToken(tokens[5]);
+            std::string timeStr = cleanToken(tokens[6]);
+            std::string revStatus = tokens.size() > 7 ? cleanToken(tokens[7]) : "PENDING_REVIEW";
 
             if (alertId > maxAlertId) maxAlertId = alertId;
 

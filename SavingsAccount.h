@@ -20,7 +20,8 @@ private:
 
 public:
     SavingsAccount(const std::string& n, double b, const std::string& date = "", double minBal = 1000.0);
-    SavingsAccount(int accNum, const std::string& n, double b, const std::string& stat, const std::string& date, double minBal = 1000.0);
+    SavingsAccount(int custId, const std::string& n, double b, const std::string& date = "", double minBal = 1000.0);
+    SavingsAccount(int accNum, int custId, const std::string& n, double b, const std::string& stat, const std::string& date, double minBal = 1000.0);
 
     // Overriding pure virtual functions from Account base class
     void calculateInterest() override;

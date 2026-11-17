@@ -1,4 +1,6 @@
-AccountNumber,HolderName,AccountType,Balance,Status,OpeningDate,Extra1,Extra2,Extra3
-1001,Vikram Malhotra,Savings Account,75000,ACTIVE,2026-10-01,1000,0,0
-1002,Apex Global Enterprises,Current Account,150000,ACTIVE,2026-10-05,50000,0,0
-1003,Aarav Sharma,Fixed Deposit,100000,ACTIVE,2026-10-10,12,0.0725,2027-10-10
+AccountNumber,CustomerId,HolderName,AccountType,Balance,Status,OpeningDate,Extra1,Extra2,Extra3
+1001,201,"Vikram Malhotra",Savings Account,80000,ACTIVE,2026-10-01,1000,0,0
+1002,202,"Apex Global Enterprises",Current Account,150000,ACTIVE,2026-10-05,50000,0,0
+1003,203,"Aarav Sharma",Savings Account,45000,ACTIVE,2026-10-08,1000,0,0
+1004,201,"Vikram Malhotra",Fixed Deposit,100000,ACTIVE,2026-10-10,12,0.0725,2027-10-10
+1005,204,"Priya Nair",Savings Account,20000,ACTIVE,2026-11-17,1000,0,0

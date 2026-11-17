@@ -12,12 +12,13 @@ void BankStatementGenerator::generateConsoleStatement(const Account& acc, const 
     std::cout << "===============================================================================\n" << UI::Color::RESET;
 
     std::cout << UI::Color::WHITE << " Account Number : " << UI::Color::BOLD_YELLOW << acc.accountNumber
-              << UI::Color::WHITE << "    | Account Holder : " << UI::Color::BOLD_WHITE << acc.name << "\n";
-    std::cout << UI::Color::WHITE << " Account Type   : " << UI::Color::CYAN << acc.getAccountType()
-              << UI::Color::WHITE << "   | Status         : " << (acc.status == "ACTIVE" ? UI::Color::BOLD_GREEN : UI::Color::BOLD_RED) 
-              << acc.status << UI::Color::RESET << "\n";
+              << UI::Color::WHITE << "    | Customer ID    : " << UI::Color::BOLD_YELLOW << "CUST-" << acc.customerId << "\n";
+    std::cout << UI::Color::WHITE << " Account Holder : " << UI::Color::BOLD_WHITE << acc.name
+              << UI::Color::WHITE << "    | Account Type   : " << UI::Color::CYAN << acc.getAccountType() << "\n";
     std::cout << UI::Color::WHITE << " Current Balance: " << UI::Color::BOLD_GREEN << UI::formatCurrency(acc.balance)
-              << UI::Color::WHITE << "    | Opening Date   : " << acc.openingDate << "\n";
+              << UI::Color::WHITE << "    | Status         : " << (acc.status == "ACTIVE" ? UI::Color::BOLD_GREEN : UI::Color::BOLD_RED) 
+              << acc.status << UI::Color::RESET << "\n";
+    std::cout << UI::Color::WHITE << " Opening Date   : " << UI::Color::GRAY << acc.openingDate << UI::Color::RESET << "\n";
 
     std::cout << UI::Color::CYAN;
     std::cout << "+---------------------+---------------+-------------+-------------+-----------+\n";
@@ -75,6 +76,7 @@ std::string BankStatementGenerator::exportFileStatement(const Account& acc, cons
     out << "                    SMARTBANK FINANCIAL STATEMENT                             \n";
     out << "===============================================================================\n";
     out << "Account Number : " << acc.accountNumber << "\n";
+    out << "Customer ID    : CUST-" << acc.customerId << "\n";
     out << "Account Holder : " << acc.name << "\n";
     out << "Account Type   : " << acc.getAccountType() << "\n";
     out << "Account Status : " << acc.status << "\n";

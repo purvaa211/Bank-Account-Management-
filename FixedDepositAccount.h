@@ -9,9 +9,9 @@
  * FixedDepositAccount inherits publicly from Account.
  * Specific business rules:
  *   - Lump-sum investment locked for a fixed term (e.g. 6, 12, 24, 36 months).
- *   - Higher compound interest rate (6.5% - 7.5% per annum).
- *   - Calculates guaranteed maturity value and maturity date.
- *   - Premature liquidation penalty notice.
+ *   - Quarterly compounding interest rate (6.5% - 7.5% per annum).
+ *   - Clear distinction between current ledger principal and projected maturity value.
+ *   - Calculated maturity date and premature liquidation rules.
  * ============================================================================
  */
 class FixedDepositAccount : public Account
@@ -28,7 +28,9 @@ private:
 public:
     FixedDepositAccount(const std::string& n, double principal, int term = 12, 
                         const std::string& date = "", double rate = 0.07);
-    FixedDepositAccount(int accNum, const std::string& n, double principal, 
+    FixedDepositAccount(int custId, const std::string& n, double principal, int term = 12, 
+                        const std::string& date = "", double rate = 0.07);
+    FixedDepositAccount(int accNum, int custId, const std::string& n, double principal, 
                         const std::string& stat, const std::string& date, 
                         int term, double rate, double matAmt, const std::string& matDate);
 

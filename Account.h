@@ -8,7 +8,7 @@
  * ============================================================================
  * OOP CONCEPT: ABSTRACT BASE CLASS, ENCAPSULATION & OPERATOR OVERLOADING
  * - Encapsulation: private data members accessed via public member functions.
- * - Abstract Class: Pure virtual functions (= 0), cannot be directly instantiated.
+ * - Abstraction: Pure virtual functions (= 0), cannot be directly instantiated.
  * - Runtime Polymorphism: Virtual functions and virtual destructor.
  * - Operator Overloading: Comparison operators (<, >, ==) and stream insertion (<<).
  * - Friend Class: BankStatementGenerator has privileged access for statements.
@@ -19,6 +19,7 @@ class Account
 {
 private:
     int accountNumber;
+    int customerId;
     std::string name;
     double balance;
     std::string status; // "ACTIVE" or "CLOSED"
@@ -31,16 +32,15 @@ protected:
     void setBalance(double b);
 
 public:
-    // Parameterized constructor
+    // Constructors (Constructor Overloading)
     Account(const std::string& n, double b, const std::string& date = "");
-
-    // Overloaded constructor for loading saved accounts
-    Account(int accNum, const std::string& n, double b, const std::string& stat, const std::string& date);
+    Account(int custId, const std::string& n, double b, const std::string& date = "");
+    Account(int accNum, int custId, const std::string& n, double b, const std::string& stat, const std::string& date);
 
     // Virtual destructor - critical for runtime polymorphism and safe memory cleanup
     virtual ~Account();
 
-    // Transactions
+    // Transactions (balance is modified only through validated member functions)
     virtual void deposit(double amount);
     virtual void withdraw(double amount);
 
@@ -55,11 +55,16 @@ public:
 
     // Public Getters (Encapsulation)
     int getAccountNumber() const;
+    int getCustomerId() const;
     std::string getName() const;
     double getBalance() const;
     std::string getStatus() const;
     std::string getOpeningDate() const;
     bool isActive() const;
+
+    // Setters
+    void setCustomerId(int id);
+    void setName(const std::string& n);
 
     // Account status management
     void closeAccount();

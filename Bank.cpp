@@ -22,6 +22,170 @@ Bank::~Bank()
     accounts.clear();
 }
 
+// ============================================================================
+// CUSTOMER MANAGEMENT
+// ============================================================================
+
+void Bank::addCustomer(const Customer& customer)
+{
+    customers.push_back(customer);
+    saveData();
+}
+
+Customer* Bank::findCustomer(int customerId)
+{
+    for (auto& c : customers)
+    {
+        if (c.getCustomerId() == customerId)
+        {
+            return &c;
+        }
+    }
+    throw BankingException("Customer not found! No customer record with ID: CUST-" + std::to_string(customerId));
+}
+
+Customer* Bank::findCustomer(const std::string& customerName)
+{
+    for (auto& c : customers)
+    {
+        if (c.getFullName() == customerName)
+        {
+            return &c;
+        }
+    }
+    throw BankingException("Customer not found! No customer record matching name: " + customerName);
+}
+
+void Bank::updateCustomerContact(int customerId, const std::string& email, const std::string& phone)
+{
+    Customer* c = findCustomer(customerId);
+    if (!email.empty()) c->setEmail(email);
+    if (!phone.empty()) c->setPhone(phone);
+    saveData();
+}
+
+std::vector<Account*> Bank::getAccountsByCustomerId(int customerId) const
+{
+    std::vector<Account*> result;
+    for (Account* acc : accounts)
+    {
+        if (acc->getCustomerId() == customerId)
+        {
+            result.push_back(acc);
+        }
+    }
+    return result;
+}
+
+void Bank::displayAllCustomers() const
+{
+    if (customers.empty())
+    {
+        UI::printWarning("No customer profiles registered. Please add a customer first.");
+        return;
+    }
+
+    std::cout << "\n" << UI::Color::BOLD_CYAN;
+    std::cout << "+-----------+--------------------------------+----------------------------+-----------------+----------+\n";
+    std::cout << "| CUST ID   | CUSTOMER FULL NAME             | EMAIL ADDRESS              | PHONE NUMBER    | ACCOUNTS |\n";
+    std::cout << "+-----------+--------------------------------+----------------------------+-----------------+----------+\n" << UI::Color::RESET;
+
+    for (const auto& c : customers)
+    {
+        size_t accCount = getAccountsByCustomerId(c.getCustomerId()).size();
+
+        std::cout << UI::Color::CYAN << "| " << UI::Color::BOLD_YELLOW 
+                  << std::left << std::setw(9) << ("CUST-" + std::to_string(c.getCustomerId()))
+                  << UI::Color::CYAN << " | " << UI::Color::BOLD_WHITE 
+                  << std::left << std::setw(30) << c.getFullName()
+                  << UI::Color::CYAN << " | " << UI::Color::WHITE 
+                  << std::left << std::setw(26) << (c.getEmail().empty() ? "-" : c.getEmail())
+                  << UI::Color::CYAN << " | " << UI::Color::WHITE 
+                  << std::left << std::setw(15) << (c.getPhone().empty() ? "-" : c.getPhone())
+                  << UI::Color::CYAN << " | " << UI::Color::BOLD_GREEN 
+                  << std::right << std::setw(8) << accCount
+                  << UI::Color::CYAN << " |\n" << UI::Color::RESET;
+    }
+
+    std::cout << UI::Color::BOLD_CYAN;
+    std::cout << "+-----------+--------------------------------+----------------------------+-----------------+----------+\n" << UI::Color::RESET;
+    std::cout << UI::Color::BOLD_WHITE << " Total Registered Customers: " << UI::Color::BOLD_YELLOW << customers.size() << UI::Color::RESET << "\n";
+}
+
+void Bank::displayCustomerDetails(int customerId) const
+{
+    const Customer* cust = nullptr;
+    for (const auto& c : customers)
+    {
+        if (c.getCustomerId() == customerId)
+        {
+            cust = &c;
+            break;
+        }
+    }
+
+    if (!cust)
+    {
+        throw BankingException("Customer not found with ID: CUST-" + std::to_string(customerId));
+    }
+
+    cust->display();
+
+    auto userAccounts = getAccountsByCustomerId(customerId);
+    std::cout << "\n" << UI::Color::BOLD_CYAN << "Associated Accounts for CUST-" << customerId << ":\n" << UI::Color::RESET;
+
+    if (userAccounts.empty())
+    {
+        UI::printInfo("No active bank accounts linked to this customer profile.");
+        return;
+    }
+
+    displayAccountsByCustomer(customerId);
+}
+
+void Bank::displayAccountsByCustomer(int customerId) const
+{
+    auto userAccounts = getAccountsByCustomerId(customerId);
+    if (userAccounts.empty())
+    {
+        UI::printWarning("No bank accounts found for Customer CUST-" + std::to_string(customerId));
+        return;
+    }
+
+    std::cout << UI::Color::CYAN;
+    std::cout << "+-------+-----------------+-----------------+-----------+\n";
+    std::cout << "| ACC # | ACCOUNT TYPE    | CURRENT BALANCE | STATUS    |\n";
+    std::cout << "+-------+-----------------+-----------------+-----------+\n" << UI::Color::RESET;
+
+    double custTotal = 0.0;
+    for (const Account* a : userAccounts)
+    {
+        std::string statusCol = a->isActive() ? UI::Color::GREEN : UI::Color::RED;
+
+        std::cout << UI::Color::CYAN << "| " << UI::Color::BOLD_WHITE 
+                  << std::left << std::setw(5) << a->getAccountNumber()
+                  << UI::Color::CYAN << " | " << UI::Color::YELLOW 
+                  << std::left << std::setw(15) << a->getAccountType()
+                  << UI::Color::CYAN << " | " << (a->getBalance() >= 0 ? UI::Color::BOLD_GREEN : UI::Color::BOLD_RED)
+                  << std::right << std::setw(15) << UI::formatCurrency(a->getBalance())
+                  << UI::Color::CYAN << " | " << statusCol 
+                  << std::left << std::setw(9) << a->getStatus()
+                  << UI::Color::CYAN << " |\n" << UI::Color::RESET;
+
+        if (a->isActive()) custTotal += a->getBalance();
+    }
+
+    std::cout << UI::Color::CYAN;
+    std::cout << "+-------+-----------------+-----------------+-----------+\n" << UI::Color::RESET;
+    std::cout << UI::Color::BOLD_WHITE << " Total Customer Deposits: " 
+              << UI::Color::BOLD_GREEN << UI::formatCurrency(custTotal) 
+              << UI::Color::RESET << "\n";
+}
+
+// ============================================================================
+// ACCOUNT MANAGEMENT
+// ============================================================================
+
 void Bank::addAccount(Account* account)
 {
     accounts.push_back(account);
@@ -64,6 +228,10 @@ Account* Bank::findAccount(const std::string& holderName)
     }
     throw AccountNotFoundException(holderName);
 }
+
+// ============================================================================
+// FINANCIAL TRANSACTIONS & ATOMIC TRANSFERS
+// ============================================================================
 
 Transaction Bank::deposit(int accountNumber, double amount, const std::string& note)
 {
@@ -113,7 +281,7 @@ Transaction Bank::transfer(int senderAccount, int receiverAccount, double amount
 {
     if (senderAccount == receiverAccount)
     {
-        throw BankingException("Transfer failed: Sender and receiver account numbers cannot be identical.");
+        throw BankingException("Transfer failed: Source and destination account numbers cannot be identical.");
     }
 
     if (amount <= 0)
@@ -135,7 +303,7 @@ Transaction Bank::transfer(int senderAccount, int receiverAccount, double amount
     }
 
     // Atomic transaction execution:
-    // 1. Validate withdrawal from sender first
+    // 1. Validate withdrawal from sender first (simulated pre-check)
     std::string failReason;
     if (!sender->canWithdraw(amount, failReason))
     {
@@ -162,6 +330,10 @@ Transaction Bank::transfer(int senderAccount, int receiverAccount, double amount
     saveData();
     return tx;
 }
+
+// ============================================================================
+// SECURITY MONITORING
+// ============================================================================
 
 FraudDetector& Bank::getFraudDetector()
 {
@@ -220,6 +392,10 @@ void Bank::displaySecurityAlerts() const
               << UI::Color::RESET << "\n";
 }
 
+// ============================================================================
+// REPORTING, STATEMENTS & AUDIT
+// ============================================================================
+
 void Bank::displayAllAccounts() const
 {
     if (accounts.empty())
@@ -229,9 +405,9 @@ void Bank::displayAllAccounts() const
     }
 
     std::cout << "\n" << UI::Color::BOLD_CYAN;
-    std::cout << "+-------+--------------------------------+-----------------+-----------------+-----------+\n";
-    std::cout << "| ACC # | ACCOUNT HOLDER                 | ACCOUNT TYPE    | CURRENT BALANCE | STATUS    |\n";
-    std::cout << "+-------+--------------------------------+-----------------+-----------------+-----------+\n" << UI::Color::RESET;
+    std::cout << "+-------+-----------+--------------------------------+-----------------+-----------------+-----------+\n";
+    std::cout << "| ACC # | CUST ID   | ACCOUNT HOLDER                 | ACCOUNT TYPE    | CURRENT BALANCE | STATUS    |\n";
+    std::cout << "+-------+-----------+--------------------------------+-----------------+-----------------+-----------+\n" << UI::Color::RESET;
 
     double totalDeposits = 0.0;
 
@@ -241,6 +417,8 @@ void Bank::displayAllAccounts() const
 
         std::cout << UI::Color::CYAN << "| " << UI::Color::BOLD_WHITE 
                   << std::left << std::setw(5) << account->getAccountNumber()
+                  << UI::Color::CYAN << " | " << UI::Color::BOLD_YELLOW
+                  << std::left << std::setw(9) << ("CUST-" + std::to_string(account->getCustomerId()))
                   << UI::Color::CYAN << " | " << UI::Color::WHITE 
                   << std::left << std::setw(30) << account->getName()
                   << UI::Color::CYAN << " | " << UI::Color::YELLOW 
@@ -258,7 +436,7 @@ void Bank::displayAllAccounts() const
     }
 
     std::cout << UI::Color::BOLD_CYAN;
-    std::cout << "+-------+--------------------------------+-----------------+-----------------+-----------+\n" << UI::Color::RESET;
+    std::cout << "+-------+-----------+--------------------------------+-----------------+-----------------+-----------+\n" << UI::Color::RESET;
 
     std::cout << UI::Color::BOLD_WHITE << " Total Accounts: " << UI::Color::BOLD_YELLOW << accounts.size() 
               << UI::Color::BOLD_WHITE << "   |   Total Deposits Under Management: " 
@@ -338,8 +516,13 @@ void Bank::printAccountStatement(int accountNumber) const
     BankStatementGenerator::generateConsoleStatement(*acc, transactions);
 }
 
+// ============================================================================
+// DATA PERSISTENCE
+// ============================================================================
+
 void Bank::saveData() const
 {
+    database.saveCustomers(customers);
     database.saveAccounts(accounts);
     database.saveTransactions(transactions);
     database.saveAlerts(fraudDetector.getAlerts());
@@ -350,7 +533,9 @@ void Bank::loadData()
     // Clean existing accounts
     for (Account* a : accounts) delete a;
     accounts.clear();
+    customers.clear();
 
+    customers = database.loadCustomers();
     accounts = database.loadAccounts();
     transactions = database.loadTransactions();
     auto alerts = database.loadAlerts();
@@ -360,9 +545,18 @@ void Bank::loadData()
     }
 }
 
+// ============================================================================
+// METRICS & COLLECTIONS
+// ============================================================================
+
 size_t Bank::getAccountCount() const
 {
     return accounts.size();
+}
+
+size_t Bank::getCustomerCount() const
+{
+    return customers.size();
 }
 
 double Bank::getTotalBankBalance() const
@@ -391,6 +585,11 @@ double Bank::getTotalWithdrawals() const
         }
     }
     return total;
+}
+
+const std::vector<Customer>& Bank::getCustomers() const
+{
+    return customers;
 }
 
 const std::vector<Account*>& Bank::getAccounts() const

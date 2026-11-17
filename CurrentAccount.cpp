@@ -4,12 +4,17 @@
 #include <iostream>
 
 CurrentAccount::CurrentAccount(const std::string& n, double b, const std::string& date, double overdraft)
-    : Account(n, b, date), overdraftLimit(overdraft)
+    : Account(201, n, b, date), overdraftLimit(overdraft)
 {
 }
 
-CurrentAccount::CurrentAccount(int accNum, const std::string& n, double b, const std::string& stat, const std::string& date, double overdraft)
-    : Account(accNum, n, b, stat, date), overdraftLimit(overdraft)
+CurrentAccount::CurrentAccount(int custId, const std::string& n, double b, const std::string& date, double overdraft)
+    : Account(custId, n, b, date), overdraftLimit(overdraft)
+{
+}
+
+CurrentAccount::CurrentAccount(int accNum, int custId, const std::string& n, double b, const std::string& stat, const std::string& date, double overdraft)
+    : Account(accNum, custId, n, b, stat, date), overdraftLimit(overdraft)
 {
 }
 

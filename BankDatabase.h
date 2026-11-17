@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Account.h"
+#include "Customer.h"
 #include "Transaction.h"
 #include "FraudDetector.h"
 
@@ -11,10 +12,11 @@
  * ============================================================================
  * OOP CONCEPT: SEPARATION OF CONCERNS & DATA PERSISTENCE
  * BankDatabase handles persistent disk I/O operations for the banking system:
+ *   - data/customers.csv
  *   - data/accounts.csv
  *   - data/transactions.csv
  *   - data/security_alerts.csv
- * Ensures data survives application restarts.
+ * Ensures data survives application restarts with ID preservation.
  * ============================================================================
  */
 class BankDatabase
@@ -26,6 +28,10 @@ private:
 
 public:
     explicit BankDatabase(const std::string& dir = "data");
+
+    // Customer Persistence
+    bool saveCustomers(const std::vector<Customer>& customers) const;
+    std::vector<Customer> loadCustomers() const;
 
     // Account Persistence
     bool saveAccounts(const std::vector<Account*>& accounts) const;
